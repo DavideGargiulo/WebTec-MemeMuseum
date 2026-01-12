@@ -1,28 +1,54 @@
-# Angular specific
-/dist/
-/out-tsc/
-/tmp/
-/coverage/
-/e2e/test-output/
-/.angular/
-.angular/
+node_modules/
+package-lock.json
+yarn.lock
 
-# Node modules and dependency files
-/node_modules/
-/package-lock.json
-/yarn.lock
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+.editorconfig
 
-# Environment files
-/.env
+.env
+.env.*
+!.env.example
 
-# Angular CLI and build artefacts
-/.angular-cli.json
-/.ng/
-
-# TypeScript cache
-*.tsbuildinfo
-
-# Logs
+logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+.npm/
+
+.angular/
+frontend/.angular/cache
+frontend/dist/
+frontend/tmp/
+frontend/out-tsc/
+frontend/bazel-out/
+
+frontend/coverage/
+frontend/test-results/
+
+frontend/.vscode/*
+!frontend/.vscode/settings.json
+!frontend/.vscode/tasks.json
+!frontend/.vscode/launch.json
+!frontend/.vscode/extensions.json
+
+postgres_data/
+pgdata/
+dump.rdb
+
+*.zip
+*.rar
