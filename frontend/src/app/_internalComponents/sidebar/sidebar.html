@@ -1,0 +1,40 @@
+<aside class="fixed left-0 top-16 h-[calc(100vh-4rem)] w-16 flex flex-col items-center py-6 
+              bg-white border-r border-gray-200 dark:bg-black dark:border-gray-800 z-40">
+
+  <nav class="flex flex-col gap-4 w-full px-2 items-center">
+    
+    <button class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors duration-200 group flex justify-center items-center">
+       <lucide-icon [img]="icons.Home" class="w-6 h-6 text-black dark:text-white" strokeWidth="1.5"></lucide-icon>
+    </button>
+
+    <button class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors duration-200 group flex justify-center items-center">
+       <lucide-icon [img]="icons.Bell" class="w-6 h-6 text-black dark:text-white" strokeWidth="1.5"></lucide-icon>
+    </button>
+
+    <button class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors duration-200 group flex justify-center items-center">
+       <lucide-icon [img]="icons.SquarePlus" class="w-6 h-6 text-black dark:text-white" strokeWidth="1.5"></lucide-icon>
+    </button>
+
+    <button class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors duration-200 group flex justify-center items-center">
+       <lucide-icon [img]="icons.MessageCircle" class="w-6 h-6 text-black dark:text-white" strokeWidth="1.5"></lucide-icon>
+    </button>
+
+  </nav>
+
+  <div class="mt-auto relative w-full px-2 flex justify-center">
+    
+    <button (click)="toggleSettings()" 
+            [class.bg-gray-100]="isSettingsOpen()"
+            [class.dark:bg-gray-800]="isSettingsOpen()"
+            class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors duration-200 group flex justify-center items-center">
+      <lucide-icon [img]="icons.Settings" 
+         class="w-6 h-6 text-black dark:text-white transition-transform duration-500 group-hover:rotate-90" 
+         strokeWidth="1.5"></lucide-icon>
+    </button>
+
+    @if (isSettingsOpen()) {
+      <app-settings-menu (closeMenu)="isSettingsOpen.set(false)"></app-settings-menu>
+    }
+
+  </div>
+</aside>
