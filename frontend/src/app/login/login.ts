@@ -1,8 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
+import { AuthService } from '../_services/auth/auth';
 
 @Component({
   selector: 'app-login',
@@ -15,7 +16,7 @@ export class LoginComponent {
   loginForm: FormGroup;
   isLoading = signal(false);
 
-  constructor(private fb: FormBuilder, private router: Router) {
+  constructor(private fb: FormBuilder, private router: Router, private readonly authService: AuthService) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
@@ -26,13 +27,16 @@ export class LoginComponent {
   onSubmit() {
     if (this.loginForm.valid) {
       this.isLoading.set(true);
-      
-      // Simulazione login
-      setTimeout(() => {
-        console.log('Dati login:', this.loginForm.value);
-        this.isLoading.set(false);
-        this.router.navigate(['/home']);
-      }, 1500);
+      this.authService.login(this.loginForm.value).subscribe({
+        next: () => {
+          this.isLoading.set(false);
+          this.router.navigate(['/']);
+        },
+        error: (err) => {
+          this.isLoading.set(false);
+          alert('Login failed: ' + (err.error?.message || 'Unknown error'));
+        }
+      });
     }
   }
 }

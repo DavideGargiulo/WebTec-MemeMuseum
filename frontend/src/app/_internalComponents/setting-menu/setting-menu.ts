@@ -1,6 +1,7 @@
 import { Component, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Moon, LogOut, User } from 'lucide-angular';
+import { AuthService } from '../../_services/auth/auth';
 
 @Component({
   selector: 'app-settings-menu',
@@ -11,6 +12,8 @@ import { LucideAngularModule, Moon, LogOut, User } from 'lucide-angular';
 export class SettingsMenuComponent {
   closeMenu = output<void>();
 
+  constructor(private readonly authService: AuthService) {}
+
   readonly icons = { Moon, LogOut, User };
 
   toggleTheme() {
@@ -18,7 +21,7 @@ export class SettingsMenuComponent {
   }
 
   logout() {
-    console.log('Eseguo logout...');
     this.closeMenu.emit();
+    this.authService.logout();
   }
 }
