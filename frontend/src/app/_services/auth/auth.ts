@@ -88,4 +88,21 @@ export class AuthService {
       }
     }
   }
+
+  register(data: {username: string, email: string, password: string}): Observable<any> {
+    return this.http.post<any>(
+      `${this.apiUrl}/signup`,
+      data,
+      { withCredentials: true }
+    ).pipe(
+      tap(response => {
+        const user = response.data?.user || response.user;
+        this.handleAuthSuccess(user);
+      }),
+      catchError(error => {
+        console.error('Errore Registrazione', error);
+        return throwError(() => error);
+      })
+    );
+  }
 }

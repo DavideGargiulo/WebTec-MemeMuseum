@@ -75,6 +75,40 @@ export async function login(req, res) {
   }
 }
 
+export async function register(req, res) {
+  try {
+    const { username, email, password } = req.body;
+    
+    const existingEmail = await User.findOne({ where: { email } });
+    if (existingEmail) {
+      return res.status(409).json({ message: "Questa email è già registrata" });
+    }
+
+    const existingUser = await User.findOne({ where: { username } });
+    if (existingUser) {
+      return res.status(409).json({ message: "Questo username è già in uso" });
+    }
+
+    // 2. Hash della password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // 3. Crea l'utente
+    const newUser = await User.create({
+      username,
+      email,
+      passwordHash: hashedPassword // Mappa corretta per il tuo modello User.js
+    });
+
+    // 4. Invia Token (Login automatico)
+    createSendToken(newUser, 201, res);
+
+  } catch (err) {
+    console.error("REGISTER ERROR:", err);
+    res.status(500).json({ message: "Errore durante la registrazione" });
+  }
+}
+
 export async function logout(req, res) {
   res.cookie('jwt', 'loggedout', {
     maxAge: 1, // Scade subito

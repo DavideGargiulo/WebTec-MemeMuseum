@@ -1,79 +1,96 @@
-<div class="min-h-screen bg-gray-50 dark:bg-slate-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans transition-colors duration-200">
-  
+<div class="min-h-screen bg-[#FAFAFA] dark:bg-[#023047] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans transition-colors duration-200">
   <div class="sm:mx-auto sm:w-full sm:max-w-md text-center mb-6">
-    <img src="assets/logo-meme.svg" alt="Meme Museum" class="mx-auto h-20 w-auto dark:invert">
-    
-    <h2 class="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900 dark:text-white">
+    <img src="assets/logo-meme.svg" alt="Meme Museum" class="mx-auto h-20 w-auto dark:brightness-0 dark:invert" />
+
+    <h2 class="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-[#023047] dark:text-white">
       Accedi al tuo account
     </h2>
   </div>
 
   <div class="sm:mx-auto sm:w-full sm:max-w-[480px]">
-    <div class="bg-white dark:bg-slate-800 px-6 py-12 shadow sm:rounded-lg sm:px-12 border border-gray-200 dark:border-slate-700/50 transition-colors duration-200">
-      
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
-        
+    <div
+      class="bg-white dark:bg-[#023047] px-6 py-12 shadow-lg sm:rounded-lg sm:px-12 border border-gray-200 dark:border-[#219EBC]/30 transition-colors duration-200"
+    >
+      <form class="space-y-6">
+        <!-- Email Field -->
         <div>
-          <label for="email" class="block text-sm font-medium leading-6 text-gray-900 dark:text-slate-200">
+          <label for="email" class="block text-sm font-medium leading-6 text-[#023047] dark:text-[#8ECAE6]">
             Indirizzo Email
           </label>
           <div class="mt-2">
-            <input id="email" 
-                   type="email" 
-                   formControlName="email"
-                   class="block w-full rounded-md border-0 py-2.5 shadow-sm sm:text-sm sm:leading-6 pl-3 transition-colors
-                          bg-white text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600
-                          dark:bg-slate-900/50 dark:text-white dark:ring-slate-600 dark:placeholder:text-slate-500 dark:focus:ring-indigo-500">
+            <input
+              id="email"
+              type="email"
+              placeholder="nome@esempio.com"
+              class="block w-full rounded-md border-0 py-2.5 shadow-sm sm:text-sm sm:leading-6 px-3 transition-all
+                     bg-white text-[#023047] ring-1 ring-inset ring-gray-300 placeholder:text-gray-400
+                     focus:ring-2 focus:ring-inset focus:ring-[#FB8500]
+                     dark:bg-[#219EBC]/10 dark:text-white dark:ring-[#219EBC]/50 dark:placeholder:text-[#8ECAE6]/50
+                     dark:focus:ring-[#FFB703]"
+            />
           </div>
         </div>
 
+        <!-- Password Field -->
         <div>
-          <label for="password" class="block text-sm font-medium leading-6 text-gray-900 dark:text-slate-200">
+          <label for="password" class="block text-sm font-medium leading-6 text-[#023047] dark:text-[#8ECAE6]">
             Password
           </label>
           <div class="mt-2">
-            <input id="password" 
-                   type="password" 
-                   formControlName="password"
-                   class="block w-full rounded-md border-0 py-2.5 shadow-sm sm:text-sm sm:leading-6 pl-3 transition-colors
-                          bg-white text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600
-                          dark:bg-slate-900/50 dark:text-white dark:ring-slate-600 dark:placeholder:text-slate-500 dark:focus:ring-indigo-500">
+            <input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              class="block w-full rounded-md border-0 py-2.5 shadow-sm sm:text-sm sm:leading-6 px-3 transition-all
+                     bg-white text-[#023047] ring-1 ring-inset ring-gray-300 placeholder:text-gray-400
+                     focus:ring-2 focus:ring-inset focus:ring-[#FB8500]
+                     dark:bg-[#219EBC]/10 dark:text-white dark:ring-[#219EBC]/50 dark:placeholder:text-[#8ECAE6]/50
+                     dark:focus:ring-[#FFB703]"
+            />
           </div>
         </div>
 
+        <!-- Remember Me -->
         <div class="flex items-center justify-between">
           <div class="flex items-center">
-            <input id="remember-me" 
-                   name="remember-me" 
-                   type="checkbox" 
-                   formControlName="rememberMe"
-                   class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 
-                          dark:border-slate-600 dark:bg-slate-900 dark:focus:ring-offset-slate-800">
-            <label for="remember-me" class="ml-2 block text-sm leading-6 text-gray-900 dark:text-slate-300">
+            <input
+              id="remember-me"
+              name="remember-me"
+              type="checkbox"
+              class="h-4 w-4 rounded border-gray-300 text-[#FB8500] focus:ring-[#FB8500]
+                     dark:border-[#219EBC] dark:bg-[#219EBC]/10 dark:focus:ring-[#FFB703] dark:checked:bg-[#FFB703]"
+            />
+            <label for="remember-me" class="ml-2 block text-sm leading-6 text-[#023047] dark:text-[#8ECAE6]">
               Ricordami
             </label>
           </div>
         </div>
 
+        <!-- Submit Button -->
         <div>
-          <button type="submit" 
-                  [disabled]="isLoading()"
-                  class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors disabled:opacity-70 disabled:cursor-not-allowed">
-            
-            @if(isLoading()) {
-              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-              </svg>
-            }
+          <button
+            type="submit"
+            class="flex w-full justify-center rounded-md bg-[#FB8500] px-3 py-2.5 text-sm font-semibold leading-6 text-white shadow-sm
+                   hover:bg-[#FB8500]/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
+                   focus-visible:outline-[#FB8500] transition-all
+                   dark:bg-[#FFB703] dark:hover:bg-[#FFB703]/90 dark:focus-visible:outline-[#FFB703]
+                   disabled:opacity-70 disabled:cursor-not-allowed"
+          >
             Sign in
           </button>
         </div>
       </form>
 
-    <p class="mt-10 text-center text-sm text-gray-500 dark:text-slate-400">
-      Non sei ancora membro?
-      <a routerLink="/register" class="font-semibold leading-6 text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 cursor-pointer">Registrati ora!</a>
-    </p>
+      <!-- Sign up link -->
+      <p class="mt-10 text-center text-sm text-[#023047] dark:text-[#8ECAE6]">
+        Non sei ancora membro?
+        <a
+          href="/signup"
+          class="font-semibold leading-6 text-[#FB8500] hover:text-[#FB8500]/80 dark:text-[#FFB703] dark:hover:text-[#FFB703]/80 cursor-pointer transition-colors"
+        >
+          Registrati ora!
+        </a>
+      </p>
+    </div>
   </div>
 </div>
