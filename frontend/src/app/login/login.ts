@@ -1,9 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
-import { AuthService } from '../_services/auth/auth';
+import { AuthService } from '../_services/auth/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -12,31 +12,39 @@ import { AuthService } from '../_services/auth/auth';
   templateUrl: './login.html',
 })
 export class LoginComponent {
-  
   loginForm: FormGroup;
   isLoading = signal(false);
 
-  constructor(private fb: FormBuilder, private router: Router, private readonly authService: AuthService) {
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private readonly authService: AuthService
+  ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      rememberMe: [false]
+      rememberMe: [false],
     });
   }
 
   onSubmit() {
-    if (this.loginForm.valid) {
-      this.isLoading.set(true);
-      this.authService.login(this.loginForm.value).subscribe({
-        next: () => {
-          this.isLoading.set(false);
-          this.router.navigate(['/']);
-        },
-        error: (err) => {
-          this.isLoading.set(false);
-          alert('Login failed: ' + (err.error?.message || 'Unknown error'));
-        }
-      });
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      return;
     }
+
+    this.isLoading.set(true);
+
+    this.authService.login(this.loginForm.value).subscribe({
+      next: () => {
+        this.isLoading.set(false);
+        this.router.navigate(['/']);
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        const errorMessage = err?.error?.message || 'Errore sconosciuto';
+        alert('Login fallito: ' + errorMessage);
+      },
+    });
   }
 }

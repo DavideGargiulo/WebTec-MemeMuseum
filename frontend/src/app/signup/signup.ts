@@ -3,7 +3,7 @@ import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-import { AuthService } from '../_services/auth/auth';
+import { AuthService } from '../_services/auth/auth.service';
 
 @Component({
   selector: 'app-signup',

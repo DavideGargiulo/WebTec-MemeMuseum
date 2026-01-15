@@ -1,4 +1,6 @@
-<div class="min-h-screen bg-[#FAFAFA] dark:bg-[#023047] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans transition-colors duration-200">
+<div
+  class="min-h-screen bg-[#FAFAFA] dark:bg-[#023047] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans transition-colors duration-200"
+>
   <div class="sm:mx-auto sm:w-full sm:max-w-md text-center mb-6">
     <img src="assets/logo-meme.svg" alt="Meme Museum" class="mx-auto h-20 w-auto dark:brightness-0 dark:invert" />
 
@@ -11,7 +13,8 @@
     <div
       class="bg-white dark:bg-[#023047] px-6 py-12 shadow-lg sm:rounded-lg sm:px-12 border border-gray-200 dark:border-[#219EBC]/30 transition-colors duration-200"
     >
-      <form class="space-y-6">
+      <!-- ✅ COLLEGATO AD ANGULAR -->
+      <form class="space-y-6" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
         <!-- Email Field -->
         <div>
           <label for="email" class="block text-sm font-medium leading-6 text-[#023047] dark:text-[#8ECAE6]">
@@ -22,6 +25,7 @@
               id="email"
               type="email"
               placeholder="nome@esempio.com"
+              formControlName="email"
               class="block w-full rounded-md border-0 py-2.5 shadow-sm sm:text-sm sm:leading-6 px-3 transition-all
                      bg-white text-[#023047] ring-1 ring-inset ring-gray-300 placeholder:text-gray-400
                      focus:ring-2 focus:ring-inset focus:ring-[#FB8500]
@@ -41,6 +45,7 @@
               id="password"
               type="password"
               placeholder="••••••••"
+              formControlName="password"
               class="block w-full rounded-md border-0 py-2.5 shadow-sm sm:text-sm sm:leading-6 px-3 transition-all
                      bg-white text-[#023047] ring-1 ring-inset ring-gray-300 placeholder:text-gray-400
                      focus:ring-2 focus:ring-inset focus:ring-[#FB8500]
@@ -55,8 +60,8 @@
           <div class="flex items-center">
             <input
               id="remember-me"
-              name="remember-me"
               type="checkbox"
+              formControlName="rememberMe"
               class="h-4 w-4 rounded border-gray-300 text-[#FB8500] focus:ring-[#FB8500]
                      dark:border-[#219EBC] dark:bg-[#219EBC]/10 dark:focus:ring-[#FFB703] dark:checked:bg-[#FFB703]"
             />
@@ -70,13 +75,14 @@
         <div>
           <button
             type="submit"
+            [disabled]="isLoading() || loginForm.invalid"
             class="flex w-full justify-center rounded-md bg-[#FB8500] px-3 py-2.5 text-sm font-semibold leading-6 text-white shadow-sm
                    hover:bg-[#FB8500]/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
                    focus-visible:outline-[#FB8500] transition-all
                    dark:bg-[#FFB703] dark:hover:bg-[#FFB703]/90 dark:focus-visible:outline-[#FFB703]
                    disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            Sign in
+            {{ isLoading() ? 'Accesso...' : 'Sign in' }}
           </button>
         </div>
       </form>
@@ -84,8 +90,9 @@
       <!-- Sign up link -->
       <p class="mt-10 text-center text-sm text-[#023047] dark:text-[#8ECAE6]">
         Non sei ancora membro?
+        <!-- ✅ routerLink per evitare full reload -->
         <a
-          href="/signup"
+          routerLink="/signup"
           class="font-semibold leading-6 text-[#FB8500] hover:text-[#FB8500]/80 dark:text-[#FFB703] dark:hover:text-[#FFB703]/80 cursor-pointer transition-colors"
         >
           Registrati ora!

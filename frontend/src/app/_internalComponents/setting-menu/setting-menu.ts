@@ -1,7 +1,8 @@
-import { Component, output } from '@angular/core';
+import { Component, output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Moon, LogOut, User } from 'lucide-angular';
-import { AuthService } from '../../_services/auth/auth';
+import { LucideAngularModule, Moon, LogOut, User, LogIn } from 'lucide-angular';
+import { AuthService } from '../../_services/auth/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-settings-menu',
@@ -11,10 +12,15 @@ import { AuthService } from '../../_services/auth/auth';
 })
 export class SettingsMenuComponent {
   closeMenu = output<void>();
+  
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
-  constructor(private readonly authService: AuthService) {}
+  readonly icons = { Moon, LogOut, User, LogIn };
 
-  readonly icons = { Moon, LogOut, User };
+  get user() {
+    return this.authService.currentUser();
+  }
 
   toggleTheme() {
     document.documentElement.classList.toggle('dark');
@@ -23,5 +29,10 @@ export class SettingsMenuComponent {
   logout() {
     this.closeMenu.emit();
     this.authService.logout();
+  }
+
+  goToLogin() {
+    this.closeMenu.emit();
+    this.router.navigate(['/login']);
   }
 }
