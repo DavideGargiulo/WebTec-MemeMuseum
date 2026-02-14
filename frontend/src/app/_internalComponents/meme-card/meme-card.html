@@ -24,11 +24,11 @@
       </div>
     </div>
 
-    <div *ngIf="memes.length > 0" class="box-border w-full sm:columns-1 md:columns-2 lg:columns-3 xl:columns-3 2xl:columns-4 gap-4">
+    <div *ngIf="memes.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       
       <article 
         *ngFor="let meme of paginatedMemes"
-        class="mb-4 break-inside-avoid p-6 rounded-xl bg-white dark:bg-slate-800 flex flex-col bg-clip-border shadow-sm">
+        class="p-6 rounded-xl bg-white dark:bg-slate-800 flex flex-col bg-clip-border shadow-sm">
         
         <div class="flex pb-6 items-start justify-between">
           <div class="flex flex-col">
@@ -61,16 +61,16 @@
 
         <div class="py-4">
           <div class="flex justify-between gap-1 mb-1">
-            <a class="flex" href="#">
+            <a class="flex w-full" href="#">
               <img 
-                class="max-w-full rounded-lg object-cover" 
+                class="w-full h-72 rounded-lg object-cover" 
                 [src]="meme.imageUrl" 
                 [alt]="meme.title" />
             </a>
           </div>
         </div>
 
-        <p class="dark:text-slate-200 text-slate-700">
+        <p class="dark:text-slate-200 text-slate-700 line-clamp-3">
           {{ meme.description }}
         </p>
 

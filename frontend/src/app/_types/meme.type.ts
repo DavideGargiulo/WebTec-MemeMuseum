@@ -10,3 +10,9 @@ export interface Meme {
   date: Date;
   isLiked?: boolean;
 }
+
+export interface MemeResponse {
+  success: boolean;
+  message: string;
+  data: Meme;
+}

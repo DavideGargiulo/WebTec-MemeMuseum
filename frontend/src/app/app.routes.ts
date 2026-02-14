@@ -1,11 +1,19 @@
 // src/app/app.routes.ts
 import { Routes } from '@angular/router';
 import { guestGuard } from './_guards/guest/guest.guard';
-import { MemeCardComponent } from './_internalComponents/meme-card/meme-card';
+import { MemeCardComponent } from './_internalComponents/meme-card/meme-card'; 
+import { CreaMemeComponent } from './create-meme/create-meme';
 
 export const routes: Routes = [
+  // 1. HOME: Assegnata direttamente alla radice (niente più redirect)
   { 
-    path: '', redirectTo: 'home', pathMatch: 'full' 
+    path: '', 
+    component: MemeCardComponent, 
+    pathMatch: 'full' 
+  },
+  {
+    path: 'create',
+    component: CreaMemeComponent 
   },
   {
     path: 'login', 
@@ -17,11 +25,8 @@ export const routes: Routes = [
     loadComponent: () => import('./signup/signup').then(m => m.SignupComponent),
     canActivate: [guestGuard]
   },
-  { path: 'test-isolato', component: MemeCardComponent },
-  
-  // AGGIUNGI QUESTA ROTTA:
   {
-    path: 'demo-statico',
-    loadComponent: () => import('./_internalComponents/demo-feed/demo-feed').then(m => m.DemoFeedComponent)
+    path: 'memeOfTheDay',
+    loadComponent: () => import('./meme-of-the-day/meme-of-the-day').then(m => m.MemeOfTheDayComponent)
   }
 ];

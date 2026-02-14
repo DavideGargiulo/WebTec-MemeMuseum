@@ -13,7 +13,7 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   
-  private readonly apiUrl = environment.apiUrl; // Es. http://localhost:3000/api/auth
+  private readonly apiUrl = environment.apiUrl;
 
   currentUser = signal<User | null>(null);
 
@@ -74,16 +74,30 @@ export class AuthService {
   }
 
   private checkSessionPersistence() {
-    // Al refresh, controlliamo se abbiamo un utente salvato in locale.
-    // (In un'app reale, qui faresti anche una chiamata this.http.get('/me') 
-    // per verificare se il cookie è ancora valido)
     const userJson = localStorage.getItem('meme_user');
 
     if (userJson) {
       try {
         const user = JSON.parse(userJson);
+        
+        // A. OTTIMISMO: Impostiamo subito l'utente per la UI (evita flash del login)
         this.currentUser.set(user);
-      } catch {
+
+        // B. VERIFICA REALE: Chiediamo al server se il cookie è ancora buono
+        this.getMe().subscribe({
+          next: () => {
+            // Tutto ok, sessione confermata silenziosamente
+            console.log('Sessione backend verificata');
+          },
+          error: (err) => {
+            console.warn('Sessione locale scaduta o invalida. Logout forzato.');
+            // Il cookie non è valido, quindi puliamo tutto
+            this.doClientLogout(); 
+          }
+        });
+
+      } catch (e) {
+        console.error('Dati locali corrotti', e);
         this.doClientLogout();
       }
     }
@@ -104,5 +118,26 @@ export class AuthService {
         return throwError(() => error);
       })
     );
+  }
+
+  getMe(): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrl}/me`,
+      { withCredentials: true }
+    ).pipe(
+      tap(response => {
+        const user = response.data?.user || response.user;
+        this.updateUserState(user);
+      }),
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
+  }
+
+  private updateUserState(user: User) {
+    if (!user) return;
+    localStorage.setItem('meme_user', JSON.stringify(user));
+    this.currentUser.set(user);
   }
 }

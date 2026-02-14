@@ -116,3 +116,16 @@ export async function logout(req, res) {
   });
   res.status(200).json({ status: 'success' });
 }
+
+export async function getMe(req, res) {
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user: {
+        id: req.user.id,
+        username: req.user.username,
+        email: req.user.email,
+      }
+    }
+  });
+}

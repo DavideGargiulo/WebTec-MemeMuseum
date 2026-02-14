@@ -1,0 +1,238 @@
+<div class="min-h-screen bg-[#FAFAFA] dark:bg-[#023047] pt-16 pb-12 transition-colors duration-200">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-[#023047] dark:text-white mb-2">
+        Crea un nuovo meme
+      </h1>
+      <p class="text-sm text-gray-600 dark:text-[#8ECAE6]">
+        Carica un'immagine e aggiungi titolo, descrizione e tag per condividere il tuo meme
+      </p>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="memeForm" (ngSubmit)="onSubmit()" class="space-y-6">
+      
+      <!-- Image Upload Card -->
+      <div class="bg-white dark:bg-[#023047] rounded-2xl shadow-lg border border-gray-200 dark:border-[#219EBC]/30 p-6 transition-colors duration-200">
+        <label class="block text-sm font-semibold text-[#023047] dark:text-[#8ECAE6] mb-4">
+          Immagine Meme *
+        </label>
+        
+        <div class="relative">
+          <!-- Upload Area -->
+          <div 
+            (click)="fileInput.click()"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)"
+            [class.border-[#FB8500]]="isDragging()"
+            [class.dark:border-[#FFB703]]="isDragging()"
+            class="border-2 border-dashed border-gray-300 dark:border-[#219EBC]/50 rounded-xl p-8 text-center cursor-pointer
+                   hover:border-[#FB8500] dark:hover:border-[#FFB703] transition-all duration-200
+                   bg-gray-50 dark:bg-[#219EBC]/5">
+            
+            <!-- Preview Image -->
+            @if (imagePreview()) {
+              <div class="relative inline-block max-w-full">
+                <img [src]="imagePreview()" alt="Preview" class="max-h-96 rounded-lg mx-auto shadow-md">
+                <button
+                  type="button"
+                  (click)="removeImage($event)"
+                  class="absolute -top-3 -right-3 p-2 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg transition-colors">
+                  <lucide-icon [img]="icons.X" class="w-4 h-4"></lucide-icon>
+                </button>
+              </div>
+            } @else {
+              <!-- Upload Icon & Text -->
+              <div class="flex flex-col items-center gap-3">
+                <div class="p-4 bg-gray-100 dark:bg-[#219EBC]/10 rounded-full">
+                  <lucide-icon [img]="icons.ImagePlus" class="w-8 h-8 text-[#FB8500] dark:text-[#FFB703]"></lucide-icon>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-[#023047] dark:text-white mb-1">
+                    Clicca per caricare o trascina qui
+                  </p>
+                  <p class="text-xs text-gray-500 dark:text-[#8ECAE6]/70">
+                    PNG, JPG, GIF fino a 10MB
+                  </p>
+                </div>
+              </div>
+            }
+            
+            <input
+              #fileInput
+              type="file"
+              accept="image/*"
+              (change)="onFileSelect($event)"
+              class="hidden"
+            />
+          </div>
+          
+          @if (memeForm.get('image')?.invalid && memeForm.get('image')?.touched) {
+            <p class="mt-2 text-sm text-red-600 dark:text-red-400">
+              L'immagine è obbligatoria
+            </p>
+          }
+        </div>
+      </div>
+
+      <!-- Title & Description Card -->
+      <div class="bg-white dark:bg-[#023047] rounded-2xl shadow-lg border border-gray-200 dark:border-[#219EBC]/30 p-6 transition-colors duration-200 space-y-5">
+        
+        <!-- Title -->
+        <div>
+          <label for="title" class="block text-sm font-semibold text-[#023047] dark:text-[#8ECAE6] mb-2">
+            Titolo *
+          </label>
+          <input
+            id="title"
+            type="text"
+            formControlName="title"
+            placeholder="Es: Quando il codice funziona al primo tentativo"
+            maxlength="100"
+            class="block w-full rounded-lg border-0 py-2.5 shadow-sm sm:text-sm px-3 transition-all
+                   bg-white text-[#023047] ring-1 ring-inset ring-gray-300 placeholder:text-gray-400
+                   focus:ring-2 focus:ring-inset focus:ring-[#FB8500]
+                   dark:bg-[#219EBC]/10 dark:text-white dark:ring-[#219EBC]/50 dark:placeholder:text-[#8ECAE6]/50
+                   dark:focus:ring-[#FFB703]"
+          />
+          <div class="flex justify-between mt-1">
+            @if (memeForm.get('title')?.invalid && memeForm.get('title')?.touched) {
+              <p class="text-xs text-red-600 dark:text-red-400">
+                Il titolo è obbligatorio (min 3 caratteri)
+              </p>
+            } @else {
+              <span></span>
+            }
+            <span class="text-xs text-gray-500 dark:text-[#8ECAE6]/70">
+              {{ memeForm.get('title')?.value?.length || 0 }}/100
+            </span>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label for="description" class="block text-sm font-semibold text-[#023047] dark:text-[#8ECAE6] mb-2">
+            Descrizione *
+          </label>
+          <textarea
+            id="description"
+            formControlName="description"
+            rows="4"
+            placeholder="Descrivi il tuo meme..."
+            maxlength="500"
+            class="block w-full rounded-lg border-0 py-2.5 shadow-sm sm:text-sm px-3 transition-all resize-none
+                   bg-white text-[#023047] ring-1 ring-inset ring-gray-300 placeholder:text-gray-400
+                   focus:ring-2 focus:ring-inset focus:ring-[#FB8500]
+                   dark:bg-[#219EBC]/10 dark:text-white dark:ring-[#219EBC]/50 dark:placeholder:text-[#8ECAE6]/50
+                   dark:focus:ring-[#FFB703]"
+          ></textarea>
+          <div class="flex justify-between mt-1">
+            @if (memeForm.get('description')?.invalid && memeForm.get('description')?.touched) {
+              <p class="text-xs text-red-600 dark:text-red-400">
+                La descrizione è obbligatoria (min 10 caratteri)
+              </p>
+            } @else {
+              <span></span>
+            }
+            <span class="text-xs text-gray-500 dark:text-[#8ECAE6]/70">
+              {{ memeForm.get('description')?.value?.length || 0 }}/500
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tags Card -->
+      <div class="bg-white dark:bg-[#023047] rounded-2xl shadow-lg border border-gray-200 dark:border-[#219EBC]/30 p-6 transition-colors duration-200">
+        <label class="block text-sm font-semibold text-[#023047] dark:text-[#8ECAE6] mb-3">
+          Tags
+        </label>
+        
+        <!-- Tag Input -->
+        <div class="flex gap-2 mb-3">
+          <div class="relative flex-1">
+            <input
+              #tagInput
+              type="text"
+              [(ngModel)]="currentTag"
+              [ngModelOptions]="{standalone: true}"
+              (keydown.enter)="addTag($event)"
+              placeholder="Aggiungi un tag e premi Invio"
+              maxlength="20"
+              class="block w-full rounded-lg border-0 py-2.5 shadow-sm sm:text-sm px-3 transition-all
+                     bg-white text-[#023047] ring-1 ring-inset ring-gray-300 placeholder:text-gray-400
+                     focus:ring-2 focus:ring-inset focus:ring-[#FB8500]
+                     dark:bg-[#219EBC]/10 dark:text-white dark:ring-[#219EBC]/50 dark:placeholder:text-[#8ECAE6]/50
+                     dark:focus:ring-[#FFB703]"
+            />
+          </div>
+          <button
+            type="button"
+            (click)="addTag()"
+            [disabled]="!currentTag.trim()"
+            class="px-4 py-2.5 bg-[#FB8500] hover:bg-[#FB8500]/90 text-white rounded-lg font-medium text-sm
+                   transition-all shadow-sm dark:bg-[#FFB703] dark:hover:bg-[#FFB703]/90
+                   disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+            <lucide-icon [img]="icons.Plus" class="w-4 h-4"></lucide-icon>
+            Aggiungi
+          </button>
+        </div>
+
+        <!-- Tags List -->
+        @if (tags().length > 0) {
+          <div class="flex flex-wrap gap-2">
+            @for (tag of tags(); track tag) {
+              <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-[#219EBC]/20 
+                           text-[#023047] dark:text-[#8ECAE6] rounded-full text-sm font-medium
+                           border border-gray-200 dark:border-[#219EBC]/30 transition-colors">
+                #{{ tag }}
+                <button
+                  type="button"
+                  (click)="removeTag(tag)"
+                  class="hover:text-red-600 dark:hover:text-red-400 transition-colors">
+                  <lucide-icon [img]="icons.X" class="w-3.5 h-3.5"></lucide-icon>
+                </button>
+              </span>
+            }
+          </div>
+        } @else {
+          <p class="text-sm text-gray-500 dark:text-[#8ECAE6]/70 text-center py-4">
+            Nessun tag aggiunto
+          </p>
+        }
+
+        <p class="text-xs text-gray-500 dark:text-[#8ECAE6]/70 mt-3">
+          Aggiungi fino a 10 tag per aiutare gli altri a trovare il tuo meme
+        </p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex gap-3 justify-end">
+        <button
+          type="button"
+          routerLink="/"
+          class="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-[#219EBC]/20 dark:hover:bg-[#219EBC]/30
+                 text-[#023047] dark:text-[#8ECAE6] rounded-lg font-medium text-sm transition-all">
+          Annulla
+        </button>
+        <button
+          type="submit"
+          [disabled]="isLoading() || memeForm.invalid"
+          class="px-6 py-2.5 bg-[#FB8500] hover:bg-[#FB8500]/90 text-white rounded-lg font-medium text-sm
+                 transition-all shadow-sm dark:bg-[#FFB703] dark:hover:bg-[#FFB703]/90
+                 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+          @if (isLoading()) {
+            <lucide-icon [img]="icons.Loader2" class="w-4 h-4 animate-spin"></lucide-icon>
+            Pubblicazione...
+          } @else {
+            <lucide-icon [img]="icons.Upload" class="w-4 h-4"></lucide-icon>
+            Pubblica Meme
+          }
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>
