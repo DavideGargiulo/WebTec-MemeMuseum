@@ -1,10 +1,12 @@
 import { Router } from "express";
 import { uploader } from "../data/local/multerStorage/uploader.js";
-import { createMeme } from "../controllers/memeController.js";
+import { createMeme, getAllMemes } from "../controllers/memeController.js";
 import { protect } from "../middleware/utils/authMiddleware.js";
 
 const router = Router();
 
 router.post("/create", protect, uploader.single("image"), createMeme);
+
+router.get("/", getAllMemes);
 
 export default router;

@@ -96,3 +96,40 @@ export async function createMeme(req, res) {
     });
   }
 }
+
+export async function getAllMemes(req, res) {
+  try {
+    const memes = await Meme.findAll({
+      order: [['createdAt', 'DESC']],
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'username']
+        },
+        {
+          model: Tag,
+          as: 'tags',
+          attributes: ['id', 'name'],
+          through: { attributes: [] }
+        }
+      ]
+    });
+
+    res.status(200).json({
+      status: 'success',
+      results: memes.length,
+      data: {
+        memes
+      }
+    });
+
+  } catch (error) {
+    console.error('Errore recupero memes:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Impossibile recuperare i meme',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+}

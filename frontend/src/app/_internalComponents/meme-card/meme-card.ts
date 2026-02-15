@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Meme } from '../../_types/meme.type';
 import {
@@ -8,19 +8,16 @@ import {
   Trash2,
   Pencil,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Share2
 } from 'lucide-angular';
+import { AuthService } from '../../_services/auth/auth.service';
+import { MemeService } from '../../_services/meme/meme.service';
 
 @Component({
   selector: 'app-meme-card',
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
-  styles: [`
-    .break-inside-avoid {
-      break-inside: avoid;
-      page-break-inside: avoid;
-    }
-  `],
   templateUrl: './meme-card.html',
 })
 export class MemeCardComponent implements OnInit {
@@ -33,148 +30,59 @@ export class MemeCardComponent implements OnInit {
     Trash2,
     Pencil,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    Share2
   };
 
-  // Paginazione
+  private authService = inject(AuthService);
+  private memeService = inject(MemeService);
+
   currentPage = 1;
   itemsPerPage = 10;
   totalPages = 1;
   paginatedMemes: Meme[] = [];
 
   ngOnInit() {
-    // 🔥 MOCK DATA (solo se non arrivano meme dall'esterno)
-    if (this.memes.length === 0) {
-      this.memes = this.getMockMemes();
-    }
-
-    this.calculatePagination();
-    this.updatePaginatedMemes();
+    this.loadMemes();
   }
 
-  private getMockMemes(): Meme[] {
-    return [
-      {
-        id: 1,
-        title: 'Angular Developer Starter Pack',
-        imageUrl: 'https://i.imgflip.com/30b1gx.jpg',
-        author: 'Mario Rossi',
-        tags: ['angular', 'frontend', 'dev'],
-        likes: 124,
-        comments: 12,
-        description: 'Quando scopri che Angular ha ancora un altro decorator.',
-        date: new Date('2024-10-12'),
-        isLiked: false
+  loadMemes() {
+    this.memeService.getAllMemes().subscribe({
+      next: (response: any) => {
+        console.log('Dati ricevuti:', response); // Debug
+
+        // 1. Mappiamo i dati dal formato Backend al formato Frontend
+        // Dallo screen vedo che il backend restituisce: { data: { memes: [...] } }
+        const backendMemes = response.data.memes;
+
+        this.memes = backendMemes.map((m: any) => ({
+          id: m.id,
+          title: m.title,
+          description: m.description,
+          // Dallo screen vedo 'filename', quindi costruiamo l'URL completo
+          imageUrl: `http://localhost:3000/uploads/${m.filename || m.fileName}`, 
+          
+          // Gestione autore (se il backend non manda l'oggetto user, metti un fallback)
+          author: m.user ? m.user.username : 'Utente',
+          authorId: m.userId, // Importante per il tasto elimina/modifica
+          
+          tags: m.tags ? m.tags.map((t: any) => t.name) : [],
+          
+          // Mappatura contatori (gestisci il caso in cui siano null)
+          likes: m.upvotesNumber || 0,
+          comments: m.commentsNumber || 0,
+          date: new Date(m.createdAt),
+          isLiked: false 
+        }));
+
+        // 2. 🔥 ORA che abbiamo i dati, calcoliamo la paginazione e aggiorniamo la vista
+        this.calculatePagination();
+        this.updatePaginatedMemes();
       },
-      {
-        id: 2,
-        title: 'Works on my machine',
-        imageUrl: 'https://i.imgflip.com/1bij.jpg',
-        author: 'Luigi Verdi',
-        tags: ['bug', 'backend', 'classic'],
-        likes: 342,
-        comments: 45,
-        description: 'Il deploy in produzione è sempre una sorpresa.',
-        date: new Date('2024-11-02'),
-        isLiked: true
-      },
-      {
-        id: 3,
-        title: 'Dark Mode Everywhere',
-        imageUrl: 'https://i.imgflip.com/4t0m5.jpg',
-        author: 'Giulia Bianchi',
-        tags: ['dark-mode', 'ui', 'ux'],
-        likes: 89,
-        comments: 7,
-        description: 'Se non ha la dark mode, non è una vera app.',
-        date: new Date('2024-12-01'),
-        isLiked: false
-      },
-      {
-        id: 4,
-        title: 'Just one more feature',
-        imageUrl: 'https://i.imgflip.com/26am.jpg',
-        author: 'Dev Ninja',
-        tags: ['scope-creep', 'agile'],
-        likes: 201,
-        comments: 19,
-        description: 'È sempre solo “un’ultima feature”, vero?',
-        date: new Date('2025-01-05'),
-        isLiked: false
-      },
-      {
-        id: 5,
-        title: 'CSS be like',
-        imageUrl: 'https://i.imgflip.com/1otk96.jpg',
-        author: 'CSS Wizard',
-        tags: ['css', 'frontend', 'pain'],
-        likes: 512,
-        comments: 88,
-        description: 'Perché questo div non si centra?!',
-        date: new Date('2025-01-10'),
-        isLiked: true
-      },
-      {
-        id: 5,
-        title: 'CSS be like',
-        imageUrl: 'https://i.imgflip.com/1otk96.jpg',
-        author: 'CSS Wizard',
-        tags: ['css', 'frontend', 'pain'],
-        likes: 512,
-        comments: 88,
-        description: 'Perché questo div non si centra?!',
-        date: new Date('2025-01-10'),
-        isLiked: true
-      },
-      {
-        id: 5,
-        title: 'CSS be like',
-        imageUrl: 'https://i.imgflip.com/1otk96.jpg',
-        author: 'CSS Wizard',
-        tags: ['css', 'frontend', 'pain'],
-        likes: 512,
-        comments: 88,
-        description: 'Perché questo div non si centra?!',
-        date: new Date('2025-01-10'),
-        isLiked: true
-      },
-      {
-        id: 5,
-        title: 'CSS be like',
-        imageUrl: 'https://i.imgflip.com/1otk96.jpg',
-        author: 'CSS Wizard',
-        tags: ['css', 'frontend', 'pain'],
-        likes: 512,
-        comments: 88,
-        description: 'Perché questo div non si centra?!',
-        date: new Date('2025-01-10'),
-        isLiked: true
-      },
-      {
-        id: 5,
-        title: 'CSS be like',
-        imageUrl: 'https://i.imgflip.com/1otk96.jpg',
-        author: 'CSS Wizard',
-        tags: ['css', 'frontend', 'pain'],
-        likes: 512,
-        comments: 88,
-        description: 'Perché questo div non si centra?!',
-        date: new Date('2025-01-10'),
-        isLiked: true
-      },
-      {
-        id: 5,
-        title: 'CSS be like',
-        imageUrl: 'https://i.imgflip.com/1otk96.jpg',
-        author: 'CSS Wizard',
-        tags: ['css', 'frontend', 'pain'],
-        likes: 512,
-        comments: 88,
-        description: 'Perché questo div non si centra?!',
-        date: new Date('2025-01-10'),
-        isLiked: true
+      error: (error) => {
+        console.error('Errore nel caricamento dei meme:', error);
       }
-    ];
+    });
   }
 
   calculatePagination() {
@@ -254,5 +162,31 @@ export class MemeCardComponent implements OnInit {
     }
 
     return pages;
+  }
+
+  getInitials(name: string): string {
+    return name
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase())
+      .join('')
+      .substring(0, 2);
+  }
+
+  formatDate(date: Date): string {
+    return new Intl.DateTimeFormat('it-IT', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }).format(date);
+  }
+
+  isOwner(meme: Meme): boolean {
+    const currentUser = this.authService.currentUser();
+    
+    if (!currentUser || !meme.authorId) {
+      return false;
+    }
+
+    return currentUser.id === meme.authorId;
   }
 }

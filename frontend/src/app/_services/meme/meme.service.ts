@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { catchError } from 'rxjs/internal/operators/catchError';
 import { Meme, MemeResponse } from '../../_types/meme.type';
 import { Observable } from 'rxjs/internal/Observable';
+import { tap } from 'rxjs/internal/operators/tap';
+import { throwError } from 'rxjs/internal/observable/throwError';
 
 @Injectable({
   providedIn: 'root',
@@ -23,6 +25,21 @@ export class MemeService {
       catchError((err) => {
         console.warn('Errore durante la creazione del meme', err);
         throw err;
+      })
+    );
+  }
+
+  getAllMemes(): Observable<any> {
+    return this.http.get<any>(
+      this.apiUrl,
+      { withCredentials: true }
+    ).pipe(
+      tap(response => {
+        console.log('Memes ricevuti:', response);
+      }),
+      catchError(error => {
+        console.error('Errore nel recupero dei memes', error);
+        return throwError(() => error);
       })
     );
   }
