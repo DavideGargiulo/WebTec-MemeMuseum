@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Meme } from '../../_types/meme.type';
 import {
@@ -36,6 +36,7 @@ export class MemeCardComponent implements OnInit {
 
   private authService = inject(AuthService);
   private memeService = inject(MemeService);
+  private cdr = inject(ChangeDetectorRef);
 
   currentPage = 1;
   itemsPerPage = 10;
@@ -49,40 +50,55 @@ export class MemeCardComponent implements OnInit {
   loadMemes() {
     this.memeService.getAllMemes().subscribe({
       next: (response: any) => {
-        console.log('Dati ricevuti:', response); // Debug
+        if (!response.data || !response.data.memes) {
+          return;
+        }
 
-        // 1. Mappiamo i dati dal formato Backend al formato Frontend
-        // Dallo screen vedo che il backend restituisce: { data: { memes: [...] } }
         const backendMemes = response.data.memes;
 
-        this.memes = backendMemes.map((m: any) => ({
-          id: m.id,
-          title: m.title,
-          description: m.description,
-          // Dallo screen vedo 'filename', quindi costruiamo l'URL completo
-          imageUrl: `http://localhost:3000/uploads/${m.filename || m.fileName}`, 
-          
-          // Gestione autore (se il backend non manda l'oggetto user, metti un fallback)
-          author: m.user ? m.user.username : 'Utente',
-          authorId: m.userId, // Importante per il tasto elimina/modifica
-          
-          tags: m.tags ? m.tags.map((t: any) => t.name) : [],
-          
-          // Mappatura contatori (gestisci il caso in cui siano null)
-          likes: m.upvotesNumber || 0,
-          comments: m.commentsNumber || 0,
-          date: new Date(m.createdAt),
-          isLiked: false 
-        }));
+        this.memes = backendMemes.map((m: any) => {
+          const mappedMeme = {
+            id: m.id,
+            title: m.title,
+            description: m.description,
+            imageUrl: `http://localhost:3000/uploads/${m.fileName}`, 
+            author: m.user ? m.user.username : 'Utente',
+            authorId: m.userId,
+            tags: m.tags ? m.tags.map((t: any) => t.name) : [],
+            likes: m.upvotesNumber || 0,
+            comments: m.commentsNumber || 0,
+            date: new Date(m.createdAt),
+            isLiked: false 
+          };
+          console.log('✅ Meme mappato:', mappedMeme);
+          return mappedMeme;
+        });
 
-        // 2. 🔥 ORA che abbiamo i dati, calcoliamo la paginazione e aggiorniamo la vista
-        this.calculatePagination();
-        this.updatePaginatedMemes();
+        console.log('📊 Array memes finale:', this.memes);
+        console.log('📊 Lunghezza array:', this.memes.length);
+
+        // Aggiorna la vista con i nuovi dati
+        this.refreshView();
       },
       error: (error) => {
         console.error('Errore nel caricamento dei meme:', error);
       }
     });
+  }
+
+  /**
+   * Aggiorna la vista dopo aver ricevuto i dati dal backend
+   * Ricalcola la paginazione e aggiorna i meme visualizzati
+   */
+  refreshView() {
+    this.calculatePagination();
+    this.updatePaginatedMemes();
+    
+    // Forza Angular a rilevare i cambiamenti
+    this.cdr.detectChanges();
+    
+    console.log('Vista aggiornata - Totale meme:', this.memes.length, 'Pagine:', this.totalPages);
+    console.log('Meme paginati:', this.paginatedMemes.length);
   }
 
   calculatePagination() {
@@ -118,18 +134,6 @@ export class MemeCardComponent implements OnInit {
 
   editMeme(meme: Meme) {
     console.log('Edit meme:', meme);
-  }
-
-  deleteMeme(meme: Meme) {
-    const index = this.memes.indexOf(meme);
-    if (index > -1) {
-      this.memes.splice(index, 1);
-      this.calculatePagination();
-      if (this.paginatedMemes.length === 1 && this.currentPage > 1) {
-        this.currentPage--;
-      }
-      this.updatePaginatedMemes();
-    }
   }
 
   getLastItemIndex(): number {
