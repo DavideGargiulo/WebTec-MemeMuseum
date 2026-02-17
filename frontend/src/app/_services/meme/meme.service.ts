@@ -44,13 +44,27 @@ export class MemeService {
     );
   }
 
-  deleteMeme(memeId: number){
+  deleteMeme(memeId: string){
     return this.http.delete(`${this.apiUrl}/${memeId}`, { withCredentials: true }).pipe(
       tap(() => {
         console.log(`Meme con ID ${memeId} eliminato con successo.`);
       }),
       catchError(error => {
         console.error(`Errore durante l'eliminazione del meme con ID ${memeId}`, error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  voteMeme(memeId: string, isUpvote: boolean): Observable<any> {
+    return this.http.post(
+      `${this.apiUrl}/${memeId}/vote`,
+      { isUpvote },
+      { withCredentials: true }
+    ).pipe(
+      tap(response => console.log(`Voto registrato per meme ${memeId}:`, response)),
+      catchError(error => {
+        console.error(`Errore voto meme ${memeId}`, error);
         return throwError(() => error);
       })
     );

@@ -1,5 +1,5 @@
 export interface Meme {
-  id: number;
+  id: string;
   title: string;
   imageUrl: string;
   author: string;
@@ -9,7 +9,8 @@ export interface Meme {
   comments: number;
   description: string;
   date: Date;
-  isLiked?: boolean;
+  isLiked?: boolean | null;
+  dislikes: number;
 }
 
 export interface MemeResponse {

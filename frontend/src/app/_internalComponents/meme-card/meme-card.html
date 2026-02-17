@@ -12,9 +12,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
           </svg>
         </div>
-        <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">
-          Nessun meme trovato
-        </h2>
+        <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">Nessun meme trovato</h2>
         <p class="text-slate-600 dark:text-slate-400 mb-6">
           Non ci sono ancora meme nella gallery. Sii il primo a caricare qualcosa di divertente!
         </p>
@@ -25,65 +23,60 @@
     </div>
 
     <div *ngIf="memes.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      
-      <article 
+
+      <article
         *ngFor="let meme of paginatedMemes"
         class="p-6 rounded-xl bg-white dark:bg-slate-800 flex flex-col bg-clip-border shadow-sm">
-        
+
+        <!-- Header card -->
         <div class="flex pb-6 items-start justify-between">
           <div class="flex flex-col">
-            <div class="text-slate-700 dark:text-slate-300 font-semibold">
-              <span>{{ meme.author }}</span>
-            </div>
-            <div class="text-slate-500 dark:text-slate-400 text-sm">
-              {{ meme.date | date: 'MMMM d, yyyy' }}
-            </div>
+            <div class="text-slate-700 dark:text-slate-300 font-semibold">{{ meme.author }}</div>
+            <div class="text-slate-500 dark:text-slate-400 text-sm">{{ meme.date | date: 'MMMM d, yyyy' }}</div>
           </div>
           <div class="flex gap-3 items-center" *ngIf="isOwner(meme)">
-            <!-- ✅ AGGIUNTO (click) per aprire il modale -->
-            <lucide-icon 
-              [img]="icons.Trash2" 
+            <lucide-icon
+              [img]="icons.Trash2"
               (click)="openDeleteModal(meme)"
-              class="w-4 h-4 text-slate-700 dark:text-slate-300 cursor-pointer hover:text-red-500 transition-colors" 
+              class="w-4 h-4 text-slate-700 dark:text-slate-300 cursor-pointer hover:text-red-500 transition-colors"
               [strokeWidth]="1.5">
             </lucide-icon>
           </div>
         </div>
 
-        <h2 class="text-2xl font-extrabold dark:text-white mb-4">
-          {{ meme.title }}
-        </h2>
+        <h2 class="text-2xl font-extrabold dark:text-white mb-4">{{ meme.title }}</h2>
 
+        <!-- Immagine -->
         <div class="py-4">
-          <div class="flex justify-between gap-1 mb-1">
-            <a class="flex w-full" href="#">
-              <img 
-                class="w-full h-72 rounded-lg object-cover" 
-                [src]="meme.imageUrl" 
-                [alt]="meme.title" />
-            </a>
-          </div>
+          <img
+            class="w-full h-72 rounded-lg object-cover"
+            [src]="meme.imageUrl"
+            [alt]="meme.title" />
         </div>
 
-        <p class="dark:text-slate-200 text-slate-700 line-clamp-3 flex-grow">
-          {{ meme.description }}
-        </p>
+        <p class="dark:text-slate-200 text-slate-700 line-clamp-3 flex-grow">{{ meme.description }}</p>
 
         <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
           <div class="flex items-center gap-2">
             <lucide-icon 
               [img]="icons.ChevronUp" 
-              (click)="toggleLike(meme)"
+              (click)="vote(meme, true)"
               class="w-4 h-4 cursor-pointer transition-colors"
               [class.text-green-500]="meme.isLiked"
               [class.text-slate-500]="!meme.isLiked"
               [class.hover:text-green-500]="!meme.isLiked"
               [strokeWidth]="1.5">
             </lucide-icon>
-            <span class="font-medium text-sm dark:text-white">{{ meme.likes }}</span>
+            <span class="font-medium text-sm dark:text-white">
+              {{ meme.likes - meme.dislikes }}
+            </span>
             <lucide-icon 
               [img]="icons.ChevronDown" 
-              class="w-4 h-4 text-slate-500 hover:text-red-500 cursor-pointer transition-colors" 
+              (click)="vote(meme, false)"
+              class="w-4 h-4 cursor-pointer transition-colors" 
+              [class.text-red-500]="meme.isLiked === false" 
+              [class.text-slate-500]="meme.isLiked !== false"
+              [class.hover:text-red-500]="meme.isLiked !== false"
               [strokeWidth]="1.5">
             </lucide-icon>
           </div>
@@ -101,6 +94,7 @@
 
     </div>
 
+    <!-- Paginazione -->
     <div class="max-w-7xl mx-auto py-8 flex justify-center items-center gap-2" *ngIf="totalPages > 1 && memes.length > 0">
       <button
         (click)="previousPage()"
@@ -121,7 +115,7 @@
           [class.dark:bg-slate-800]="page !== currentPage && page > 0"
           [class.text-slate-700]="page !== currentPage && page > 0"
           [class.dark:text-slate-300]="page !== currentPage && page > 0"
-          class="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:cursor-default disabled:hover:bg-transparent transition-colors min-w-[40px]">
+          class="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:cursor-default transition-colors min-w-[40px]">
           {{ page > 0 ? page : '...' }}
         </button>
       </div>
@@ -136,67 +130,50 @@
     </div>
 
     <div class="max-w-7xl mx-auto pb-8 text-center text-sm text-slate-600 dark:text-slate-400" *ngIf="memes.length > 0">
-      Mostrando {{ (currentPage - 1) * itemsPerPage + 1 }} - 
-      {{ getLastItemIndex() }} di {{ memes.length }} meme
+      Mostrando {{ (currentPage - 1) * itemsPerPage + 1 }} - {{ getLastItemIndex() }} di {{ memes.length }} meme
     </div>
 
   </div>
 </div>
 
 
-<!-- ✅ MODALE ELIMINAZIONE — fuori dal wrapper principale, dentro lo stesso template -->
+<!-- MODALE ELIMINAZIONE -->
 <div
   *ngIf="showDeleteModal"
   class="fixed inset-0 z-50 flex items-center justify-center p-4"
   (click)="closeDeleteModal()">
 
-  <!-- Backdrop -->
   <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
 
-  <!-- Pannello modale -->
   <div
-    class="relative w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-2xl
-           border border-gray-200 dark:border-slate-700"
+    class="relative w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-700"
     (click)="$event.stopPropagation()">
 
-    <!-- Header -->
     <div class="px-6 pt-6 pb-4 flex items-start gap-4">
-
-      <!-- Icona cestino -->
       <div class="flex-shrink-0 w-11 h-11 rounded-full bg-red-100 dark:bg-red-500/15 flex items-center justify-center">
         <lucide-icon [img]="icons.Trash2" class="w-5 h-5 text-red-500" [strokeWidth]="1.8"></lucide-icon>
       </div>
-
-      <!-- Testo -->
       <div class="flex-1 min-w-0">
         <h3 class="text-lg font-bold text-slate-900 dark:text-white">Elimina meme</h3>
-        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          Questa azione è permanente e non può essere annullata.
-        </p>
+        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Questa azione è permanente e non può essere annullata.</p>
       </div>
-
-      <!-- Chiudi X -->
       <button
         type="button"
         (click)="closeDeleteModal()"
-        class="flex-shrink-0 p-1.5 rounded-lg text-slate-400 hover:text-slate-600
-               hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+        class="flex-shrink-0 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
         <lucide-icon [img]="icons.X" class="w-4 h-4" [strokeWidth]="2"></lucide-icon>
       </button>
     </div>
 
     <div class="mx-6 border-t border-slate-100 dark:border-slate-700"></div>
 
-    <!-- Corpo -->
     <div class="px-6 py-4">
-      <!-- Anteprima titolo meme -->
       <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600">
-        <lucide-icon [img]="icons.ChevronUp" class="w-4 h-4 text-slate-400 flex-shrink-0" [strokeWidth]="1.5"></lucide-icon>
+        <lucide-icon [img]="icons.Trash2" class="w-4 h-4 text-slate-400 flex-shrink-0" [strokeWidth]="1.5"></lucide-icon>
         <span class="text-sm font-medium text-slate-800 dark:text-white truncate">
           {{ memeToDelete?.title || 'Meme senza titolo' }}
         </span>
       </div>
-
       <p class="mt-3 text-sm text-slate-600 dark:text-slate-400">
         Sei sicuro di voler eliminare questo meme? Perderai tutti i like e i commenti associati.
       </p>
@@ -204,25 +181,18 @@
 
     <div class="mx-6 border-t border-slate-100 dark:border-slate-700"></div>
 
-    <!-- Pulsanti -->
     <div class="px-6 py-4 flex gap-3 justify-end">
       <button
         type="button"
         (click)="closeDeleteModal()"
-        class="px-5 py-2.5 rounded-lg text-sm font-medium transition-all
-               bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600
-               text-slate-700 dark:text-slate-300">
+        class="px-5 py-2.5 rounded-lg text-sm font-medium transition-all bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300">
         Annulla
       </button>
-
       <button
         type="button"
         (click)="confirmDelete()"
         [disabled]="isDeleting"
-        class="px-5 py-2.5 rounded-lg text-sm font-semibold transition-all
-               flex items-center gap-2 shadow-sm
-               bg-red-500 hover:bg-red-600 text-white
-               disabled:opacity-60 disabled:cursor-not-allowed">
+        class="px-5 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 shadow-sm bg-red-500 hover:bg-red-600 text-white disabled:opacity-60 disabled:cursor-not-allowed">
         <lucide-icon *ngIf="isDeleting" [img]="icons.Loader2" class="w-4 h-4 animate-spin" [strokeWidth]="2"></lucide-icon>
         <lucide-icon *ngIf="!isDeleting" [img]="icons.Trash2" class="w-4 h-4" [strokeWidth]="2"></lucide-icon>
         {{ isDeleting ? 'Eliminazione...' : 'Elimina meme' }}

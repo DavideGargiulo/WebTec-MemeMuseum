@@ -10,11 +10,12 @@ import {
   ChevronLeft,
   ChevronRight,
   Share2,
-  X,        // ✅ AGGIUNTO per il modale
-  Loader2   // ✅ AGGIUNTO per lo spinner
+  X,
+  Loader2
 } from 'lucide-angular';
 import { AuthService } from '../../_services/auth/auth.service';
 import { MemeService } from '../../_services/meme/meme.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-meme-card',
@@ -34,23 +35,24 @@ export class MemeCardComponent implements OnInit {
     ChevronLeft,
     ChevronRight,
     Share2,
-    X,       // ✅ AGGIUNTO
-    Loader2  // ✅ AGGIUNTO
+    X,
+    Loader2
   };
 
   private authService = inject(AuthService);
   private memeService = inject(MemeService);
   private cdr = inject(ChangeDetectorRef);
+  private router = inject(Router);
 
   currentPage = 1;
   itemsPerPage = 10;
   totalPages = 1;
   paginatedMemes: Meme[] = [];
 
-  // ✅ NUOVE PROPRIETÀ per il modale
   showDeleteModal = false;
   memeToDelete: Meme | null = null;
   isDeleting = false;
+  votingMemeIds = new Set<string>();
 
   ngOnInit() {
     this.loadMemes();
@@ -66,6 +68,14 @@ export class MemeCardComponent implements OnInit {
         const backendMemes = response.data.memes;
 
         this.memes = backendMemes.map((m: any) => {
+          
+          // Estrazione del voto dell'utente (se presente)
+          // Il backend restituisce un array 'votes' che può contenere 0 o 1 elemento
+          let userVote = null;
+          if (m.votes && m.votes.length > 0) {
+            userVote = m.votes[0].isUpvote; // sarà true o false
+          }
+
           const mappedMeme = {
             id: m.id,
             title: m.title,
@@ -74,10 +84,16 @@ export class MemeCardComponent implements OnInit {
             author: m.user ? m.user.username : 'Utente',
             authorId: m.userId,
             tags: m.tags ? m.tags.map((t: any) => t.name) : [],
+            
+            // Mapping contatori
             likes: m.upvotesNumber || 0,
+            dislikes: m.downvotesNumber || 0, // Fondamentale per il calcolo del punteggio netto
             comments: m.commentsNumber || 0,
+            
             date: new Date(m.createdAt),
-            isLiked: false
+            
+            // Stato del voto: true (verde), false (rosso), null (grigio)
+            isLiked: userVote 
           };
           return mappedMeme;
         });
@@ -171,8 +187,6 @@ export class MemeCardComponent implements OnInit {
     return currentUser.id === meme.authorId;
   }
 
-  // ✅ NUOVI METODI per il modale di eliminazione
-
   openDeleteModal(meme: Meme) {
     this.memeToDelete = meme;
     this.showDeleteModal = true;
@@ -191,7 +205,6 @@ export class MemeCardComponent implements OnInit {
 
     this.memeService.deleteMeme(this.memeToDelete.id).subscribe({
       next: () => {
-        // Rimuove il meme dalla lista locale senza ricaricare tutto
         this.memes = this.memes.filter(m => m.id !== this.memeToDelete!.id);
         this.isDeleting = false;
         this.memeToDelete = null;
@@ -204,5 +217,71 @@ export class MemeCardComponent implements OnInit {
         // Qui puoi aggiungere un toast/notifica di errore
       }
     });
+  }
+
+  vote(meme: Meme, isUpvote: boolean) {
+    if (!this.authService.currentUser()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    if (this.votingMemeIds.has(meme.id)) return;
+
+    this.votingMemeIds.add(meme.id);
+
+    const previousVote = meme.isLiked ?? null;
+    this.applyOptimisticVote(meme, isUpvote);
+
+    this.memeService.voteMeme(meme.id, isUpvote).subscribe({
+      next: (response: any) => {
+        // Aggiorna con i valori reali restituiti dal server
+        meme.likes    = response.data.upvotesNumber;
+        meme.dislikes = response.data.downvotesNumber;
+        meme.isLiked = response.data.userVote;
+        this.votingMemeIds.delete(meme.id);
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Errore durante il voto:', error);
+        this.revertOptimisticVote(meme, previousVote);
+        this.votingMemeIds.delete(meme.id);
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private applyOptimisticVote(meme: Meme, isUpvote: boolean) {
+    if (meme.isLiked === isUpvote) {
+      // Toggle off: stesso voto → rimuovi
+      isUpvote ? meme.likes-- : meme.dislikes--;
+      meme.isLiked = null;
+    } else {
+      // Switch o nuovo voto
+      if (meme.isLiked !== null) {
+        // Rimuovi il voto opposto
+        meme.isLiked ? meme.likes-- : meme.dislikes--;
+      }
+      isUpvote ? meme.likes++ : meme.dislikes++;
+      meme.isLiked = isUpvote;
+    }
+    this.cdr.detectChanges();
+  }
+
+  private revertOptimisticVote(meme: Meme, previousVote: boolean | null) {
+    // Ricarica i dati reali in caso di errore
+    this.memeService.getAllMemes().subscribe({
+      next: (response: any) => {
+        const fresh = response.data?.memes?.find((m: any) => m.id === meme.id);
+        if (fresh) {
+          meme.likes    = fresh.upvotesNumber || 0;
+          meme.dislikes = fresh.downvotesNumber || 0;
+          meme.isLiked = previousVote;
+        }
+      }
+    });
+  }
+
+  isVoting(meme: Meme): boolean {
+    return this.votingMemeIds.has(meme.id);
   }
 }
