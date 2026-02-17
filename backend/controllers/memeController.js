@@ -1,7 +1,9 @@
 import { User, Meme, Tag, MemeTag } from "../data/remote/Database.js";
 import fs from 'fs';
+import crypto from 'crypto';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import sharp from 'sharp';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -37,11 +39,38 @@ export async function createMeme(req, res) {
       }
     }
 
+    // Percorso assoluto: multer diskStorage non garantisce che imageFile.path
+    // sia risolvibile dal CWD del processo, costruiamolo manualmente
+    const absoluteFilePath = path.join(__dirname, '..', 'uploads', imageFile.filename);
+
+    // file_size: multer diskStorage NON popola imageFile.size, va letto da fs
+    const file_size = fs.statSync(absoluteFilePath).size;
+
+    // Calcolo file_hash SHA-256
+    const fileBuffer = fs.readFileSync(absoluteFilePath);
+    const file_hash = crypto.createHash('sha256').update(fileBuffer).digest('hex');
+
+    // Calcolo width e height tramite sharp
+    let width = null;
+    let height = null;
+    try {
+      const metadata = await sharp(absoluteFilePath).metadata();
+      width = metadata.width ?? null;
+      height = metadata.height ?? null;
+    } catch (sharpError) {
+      console.error('Errore lettura dimensioni immagine:', sharpError);
+    }
+
     const newMeme = await Meme.create({
       title,
       description,
       fileName: imageFile.filename,
       filePath: `/uploads/${imageFile.filename}`,
+      file_size,
+      mime_type: imageFile.mimetype,
+      file_hash,
+      width,
+      height,
       userId
     });
 
@@ -129,6 +158,52 @@ export async function getAllMemes(req, res) {
     res.status(500).json({
       status: 'error',
       message: 'Impossibile recuperare i meme',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+}
+
+export async function deleteMeme(req, res) {
+  const { id } = req.params;
+
+  try {
+    // Verifica User
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ status: 'fail', message: 'Utente non autenticato' });
+    }
+
+    const meme = await Meme.findOne({ where: { id } });
+
+    if (!meme) {
+      return res.status(404).json({ status: 'fail', message: 'Meme non trovato' });
+    }
+
+    // Solo il proprietario può cancellare il proprio meme
+    if (meme.userId !== req.user.id) {
+      return res.status(403).json({ status: 'fail', message: 'Non sei autorizzato a cancellare questo meme' });
+    }
+
+    // Cancella il file fisico da uploads/
+    const absoluteFilePath = path.join(__dirname, '..', 'uploads', meme.fileName);
+    if (fs.existsSync(absoluteFilePath)) {
+      fs.unlinkSync(absoluteFilePath);
+      console.log('File eliminato:', absoluteFilePath);
+    } else {
+      console.warn('File non trovato su disco (già eliminato?):', absoluteFilePath);
+    }
+
+    await meme.destroy();
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Meme eliminato con successo'
+    });
+
+  } catch (error) {
+    console.error('Errore durante la cancellazione del meme:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Si è verificato un errore durante la cancellazione del meme',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }

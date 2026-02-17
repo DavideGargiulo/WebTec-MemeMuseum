@@ -9,7 +9,9 @@ import {
   Pencil,
   ChevronLeft,
   ChevronRight,
-  Share2
+  Share2,
+  X,        // ✅ AGGIUNTO per il modale
+  Loader2   // ✅ AGGIUNTO per lo spinner
 } from 'lucide-angular';
 import { AuthService } from '../../_services/auth/auth.service';
 import { MemeService } from '../../_services/meme/meme.service';
@@ -31,7 +33,9 @@ export class MemeCardComponent implements OnInit {
     Pencil,
     ChevronLeft,
     ChevronRight,
-    Share2
+    Share2,
+    X,       // ✅ AGGIUNTO
+    Loader2  // ✅ AGGIUNTO
   };
 
   private authService = inject(AuthService);
@@ -42,6 +46,11 @@ export class MemeCardComponent implements OnInit {
   itemsPerPage = 10;
   totalPages = 1;
   paginatedMemes: Meme[] = [];
+
+  // ✅ NUOVE PROPRIETÀ per il modale
+  showDeleteModal = false;
+  memeToDelete: Meme | null = null;
+  isDeleting = false;
 
   ngOnInit() {
     this.loadMemes();
@@ -61,23 +70,18 @@ export class MemeCardComponent implements OnInit {
             id: m.id,
             title: m.title,
             description: m.description,
-            imageUrl: `http://localhost:3000/uploads/${m.fileName}`, 
+            imageUrl: `http://localhost:3000/uploads/${m.fileName}`,
             author: m.user ? m.user.username : 'Utente',
             authorId: m.userId,
             tags: m.tags ? m.tags.map((t: any) => t.name) : [],
             likes: m.upvotesNumber || 0,
             comments: m.commentsNumber || 0,
             date: new Date(m.createdAt),
-            isLiked: false 
+            isLiked: false
           };
-          console.log('✅ Meme mappato:', mappedMeme);
           return mappedMeme;
         });
 
-        console.log('📊 Array memes finale:', this.memes);
-        console.log('📊 Lunghezza array:', this.memes.length);
-
-        // Aggiorna la vista con i nuovi dati
         this.refreshView();
       },
       error: (error) => {
@@ -86,19 +90,10 @@ export class MemeCardComponent implements OnInit {
     });
   }
 
-  /**
-   * Aggiorna la vista dopo aver ricevuto i dati dal backend
-   * Ricalcola la paginazione e aggiorna i meme visualizzati
-   */
   refreshView() {
     this.calculatePagination();
     this.updatePaginatedMemes();
-    
-    // Forza Angular a rilevare i cambiamenti
     this.cdr.detectChanges();
-    
-    console.log('Vista aggiornata - Totale meme:', this.memes.length, 'Pagine:', this.totalPages);
-    console.log('Meme paginati:', this.paginatedMemes.length);
   }
 
   calculatePagination() {
@@ -132,10 +127,6 @@ export class MemeCardComponent implements OnInit {
     meme.isLiked ? meme.likes++ : meme.likes--;
   }
 
-  editMeme(meme: Meme) {
-    console.log('Edit meme:', meme);
-  }
-
   getLastItemIndex(): number {
     return Math.min(this.currentPage * this.itemsPerPage, this.memes.length);
   }
@@ -154,13 +145,11 @@ export class MemeCardComponent implements OnInit {
         for (let i = this.totalPages - 3; i <= this.totalPages; i++) pages.push(i);
       } else {
         pages.push(
-          1,
-          -1,
+          1, -1,
           this.currentPage - 1,
           this.currentPage,
           this.currentPage + 1,
-          -1,
-          this.totalPages
+          -1, this.totalPages
         );
       }
     }
@@ -176,21 +165,44 @@ export class MemeCardComponent implements OnInit {
       .substring(0, 2);
   }
 
-  formatDate(date: Date): string {
-    return new Intl.DateTimeFormat('it-IT', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    }).format(date);
-  }
-
   isOwner(meme: Meme): boolean {
     const currentUser = this.authService.currentUser();
-    
-    if (!currentUser || !meme.authorId) {
-      return false;
-    }
-
+    if (!currentUser || !meme.authorId) return false;
     return currentUser.id === meme.authorId;
+  }
+
+  // ✅ NUOVI METODI per il modale di eliminazione
+
+  openDeleteModal(meme: Meme) {
+    this.memeToDelete = meme;
+    this.showDeleteModal = true;
+  }
+
+  closeDeleteModal() {
+    if (this.isDeleting) return; // non chiudere mentre sta eliminando
+    this.memeToDelete = null;
+    this.showDeleteModal = false;
+  }
+
+  confirmDelete() {
+    if (!this.memeToDelete || this.isDeleting) return;
+
+    this.isDeleting = true;
+
+    this.memeService.deleteMeme(this.memeToDelete.id).subscribe({
+      next: () => {
+        // Rimuove il meme dalla lista locale senza ricaricare tutto
+        this.memes = this.memes.filter(m => m.id !== this.memeToDelete!.id);
+        this.isDeleting = false;
+        this.memeToDelete = null;
+        this.showDeleteModal = false;
+        this.refreshView();
+      },
+      error: (error) => {
+        console.error('Errore durante l\'eliminazione:', error);
+        this.isDeleting = false;
+        // Qui puoi aggiungere un toast/notifica di errore
+      }
+    });
   }
 }
