@@ -15,12 +15,12 @@ import {
 } from 'lucide-angular';
 import { AuthService } from '../../_services/auth/auth.service';
 import { MemeService } from '../../_services/meme/meme.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-meme-card',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, RouterLink],
   templateUrl: './meme-card.html',
 })
 export class MemeCardComponent implements OnInit {

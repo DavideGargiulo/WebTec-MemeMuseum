@@ -69,4 +69,22 @@ export class MemeService {
       })
     );
   }
+
+  getMemeById(id: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/memes/${id}`);
+  }
+
+  addComment(memeId: string, content: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/memes/${memeId}/comments`, { content, withCredentials: true });
+  }
+
+  getMemeOfTheDay(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/meme-of-the-day`, { withCredentials: true }).pipe(
+      tap(response => console.log('Meme del giorno ricevuto:', response)),
+      catchError(error => {
+        console.error('Errore nel recupero del meme del giorno', error);
+        return throwError(() => error);
+      })
+    );
+  }
 }

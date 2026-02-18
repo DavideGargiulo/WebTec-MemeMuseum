@@ -1,9 +1,10 @@
-import { User, Meme, Tag, MemeTag, MemeVote } from "../data/remote/Database.js";
+import { User, Meme, Tag, MemeTag, MemeVote, Comment, database } from "../data/remote/Database.js";
 import fs from 'fs';
 import crypto from 'crypto';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import sharp from 'sharp';
+import { Op } from 'sequelize';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -290,5 +291,114 @@ export async function voteMeme(req, res) {
       message: 'Si è verificato un errore durante il voto',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
+  }
+}
+
+export async function getMemeById(req, res) {
+  try {
+    const { id } = req.params;
+    const userId = req.user?.id ?? null;
+
+    const meme = await Meme.findOne({
+      where: { id },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'username']
+        },
+        {
+          model: Tag,
+          as: 'tags',
+          attributes: ['name'],
+          through: { attributes: [] }
+        },
+        {
+          model: Comment,
+          as: 'comments',
+          attributes: ['id', 'content', 'createdAt', 'userId'],
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: ['id', 'username']
+            }
+          ],
+          order: [['createdAt', 'DESC']]
+        },
+        ...(userId ? [{
+          model: MemeVote,
+          as: 'votes',
+          attributes: ['isUpvote'],
+          where: { userId },
+          required: false
+        }] : [])
+      ]
+    });
+
+    if (!meme) {
+      return res.status(404).json({
+        success: false,
+        message: 'Meme non trovato'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: meme.toJSON()
+    });
+
+  } catch (error) {
+    console.error('Errore in getMemeById:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Errore interno del server'
+    });
+  }
+};
+
+export async function getMemeOfTheDay(req, res) {
+  try {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const memeOfTheDay = await Meme.findOne({
+      where: {
+        createdAt: {
+          [Op.between]: [startOfDay, endOfDay]
+        }
+      },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'username']
+        },
+        {
+          model: Tag,
+          as: 'tags',
+          attributes: ['id', 'name'],
+          through: { attributes: [] }
+        }
+      ],
+      order: [
+        [database.literal('("Meme"."upvotes_number" - "Meme"."downvotes_number")'), 'DESC'],
+        ['createdAt', 'DESC']
+      ],
+      subQuery: false  // 👈 this prevents the wrapping subquery
+    });
+
+    if (!memeOfTheDay) {
+      return res.status(200).json({ data: null, message: "Nessun meme pubblicato oggi." });
+    }
+
+    res.status(200).json({ data: memeOfTheDay });
+
+  } catch (error) {
+    console.error("Errore nel recupero del meme del giorno:", error);
+    res.status(500).json({ message: "Impossibile recuperare il meme del giorno.", error: error.message });
   }
 }

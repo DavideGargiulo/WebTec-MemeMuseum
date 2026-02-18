@@ -1,11 +1,9 @@
-// src/app/app.routes.ts
 import { Routes } from '@angular/router';
 import { guestGuard } from './_guards/guest/guest.guard';
 import { MemeCardComponent } from './_internalComponents/meme-card/meme-card'; 
 import { CreaMemeComponent } from './create-meme/create-meme';
 
 export const routes: Routes = [
-  // 1. HOME: Assegnata direttamente alla radice (niente più redirect)
   { 
     path: '', 
     component: MemeCardComponent, 
@@ -26,7 +24,11 @@ export const routes: Routes = [
     canActivate: [guestGuard]
   },
   {
-    path: 'memeOfTheDay',
+    path: 'viewmeme/:id',
+    loadComponent: () => import('./view-meme/view-meme').then(m => m.ViewMemeComponent)
+  },
+  {
+    path: 'meme-of-the-day',
     loadComponent: () => import('./meme-of-the-day/meme-of-the-day').then(m => m.MemeOfTheDayComponent)
   }
 ];

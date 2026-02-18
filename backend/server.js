@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 
 import authRouter from "./routes/authRoutes.js";
 import memeRoutes from "./routes/memeRoutes.js";
+import commentRoutes from "./routes/commentRoutes.js";
 import { initDatabase } from './data/remote/Database.js'; 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -55,6 +56,8 @@ app.get('/health', (req, res) => {
 app.use("/api/auth", authRouter);
 
 app.use("/api/memes", memeRoutes);
+
+app.use("/api/comments", commentRoutes);
 
 app.all(/(.*)/, (req, res) => { 
   res.status(404).json({
