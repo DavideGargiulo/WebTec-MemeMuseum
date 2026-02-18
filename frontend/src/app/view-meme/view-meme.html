@@ -1,0 +1,136 @@
+<div class="fixed top-16 left-16 right-0 bottom-0 bg-[#FAFAFA] dark:bg-[#023047] transition-colors duration-200 overflow-hidden">
+  
+  <div *ngIf="isLoading" class="w-full h-full flex items-center justify-center">
+    <lucide-icon [img]="icons.Loader2" class="w-10 h-10 text-[#FB8500] dark:text-[#FFB703] animate-spin" [strokeWidth]="1.5"></lucide-icon>
+  </div>
+
+  <div *ngIf="!isLoading && meme" class="w-full h-full p-4 sm:p-6 flex flex-col min-h-0">
+
+    <div class="flex flex-col lg:flex-row gap-6 h-full min-h-0">
+
+      <div class="w-full lg:w-3/5 h-full flex flex-col min-h-0">
+        <div class="bg-white dark:bg-[#023047] rounded-2xl shadow-lg border border-gray-200 dark:border-[#219EBC]/30 flex flex-col h-full overflow-hidden transition-colors duration-200">
+          
+          <div class="flex-1 min-h-0 p-2 flex items-center justify-center bg-[#FAFAFA] dark:bg-black/10">
+            <img
+              [src]="meme.imageUrl"
+              [alt]="meme.title"
+              class="w-full h-full object-contain" />
+          </div>
+
+          <div class="shrink-0 px-6 py-4 border-t border-gray-200 dark:border-[#219EBC]/30 flex items-center gap-4 bg-white dark:bg-[#023047]">
+            <button
+              (click)="vote(true)"
+              [disabled]="isVoting"
+              class="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+              [class.text-[#FB8500]]="meme.isLiked === true"
+              [class.dark:text-[#FFB703]]="meme.isLiked === true"
+              [class.text-gray-400]="meme.isLiked !== true"
+              [class.dark:text-[#8ECAE6]]="meme.isLiked !== true">
+              <lucide-icon [img]="icons.ChevronUp" class="w-5 h-5" [strokeWidth]="2"></lucide-icon>
+              <span class="font-semibold text-sm">{{ meme.likes }}</span>
+            </button>
+
+            <span class="text-xl font-bold text-[#023047] dark:text-white">{{ meme.likes - meme.dislikes }}</span>
+
+            <button
+              (click)="vote(false)"
+              [disabled]="isVoting"
+              class="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+              [class.text-red-500]="meme.isLiked === false"
+              [class.text-gray-400]="meme.isLiked !== false"
+              [class.dark:text-[#8ECAE6]]="meme.isLiked !== false">
+              <lucide-icon [img]="icons.ChevronDown" class="w-5 h-5" [strokeWidth]="2"></lucide-icon>
+              <span class="font-semibold text-sm">{{ meme.dislikes }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="w-full lg:w-2/5 h-full flex flex-col gap-4 min-h-0">
+
+        <div class="shrink-0 bg-white dark:bg-[#023047] rounded-2xl shadow-lg border border-gray-200 dark:border-[#219EBC]/30 p-5 transition-colors duration-200 flex flex-col gap-3">
+
+          <h1 class="text-xl font-bold text-[#023047] dark:text-white leading-tight">{{ meme.title }}</h1>
+
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-[#FB8500]/10 dark:bg-[#FFB703]/10 text-[#FB8500] dark:text-[#FFB703] flex items-center justify-center text-xs font-bold">
+              {{ getInitials(meme.author) }}
+            </div>
+            <div>
+              <div class="font-semibold text-[#023047] dark:text-white text-sm">{{ meme.author }}</div>
+              <div class="text-xs text-gray-500 dark:text-[#8ECAE6]/70">{{ meme.date | date: 'MMMM d, yyyy' }}</div>
+            </div>
+          </div>
+
+          <p class="text-sm text-gray-600 dark:text-[#8ECAE6] leading-relaxed line-clamp-3">{{ meme.description }}</p>
+
+          <div class="flex flex-wrap gap-2 mt-1" *ngIf="meme.tags.length > 0">
+            <span
+              *ngFor="let tag of meme.tags"
+              class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 dark:bg-[#219EBC]/20 text-[#023047] dark:text-[#8ECAE6] rounded-full text-xs font-medium border border-gray-200 dark:border-[#219EBC]/30">
+              #{{ tag }}
+            </span>
+          </div>
+        </div>
+
+        <div class="flex-1 min-h-0 bg-white dark:bg-[#023047] rounded-2xl shadow-lg border border-gray-200 dark:border-[#219EBC]/30 p-5 transition-colors duration-200 flex flex-col">
+
+          <h2 class="shrink-0 text-sm font-semibold text-[#023047] dark:text-[#8ECAE6] mb-4">
+            Commenti <span class="text-gray-400 dark:text-[#8ECAE6]/50 font-normal">({{ meme.comments }})</span>
+          </h2>
+
+          <div class="flex-1 overflow-y-auto pr-2 flex flex-col gap-4">
+
+            <div *ngIf="comments.length === 0" class="text-center py-8 text-sm text-gray-500 dark:text-[#8ECAE6]/70">
+              Ancora nessun commento. Sii il primo!
+            </div>
+
+            <div *ngFor="let comment of comments" class="flex gap-3 group">
+              <div class="w-8 h-8 rounded-full bg-[#FB8500]/10 dark:bg-[#FFB703]/10 text-[#FB8500] dark:text-[#FFB703] flex items-center justify-center text-xs font-bold flex-shrink-0">
+                {{ getInitials(comment.author) }}
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-semibold text-[#023047] dark:text-white">{{ comment.author }}</span>
+                    <span class="text-xs text-gray-400 dark:text-[#8ECAE6]/50">{{ comment.date | date: 'MMM d, yyyy' }}</span>
+                  </div>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-[#8ECAE6] mt-0.5 break-words">{{ comment.content }}</p>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="shrink-0 border-t border-gray-200 dark:border-[#219EBC]/30 pt-4 mt-4">
+            <div class="flex gap-3 items-end">
+              <textarea
+                [(ngModel)]="newComment"
+                (keydown.enter)="$event.preventDefault(); sendComment()"
+                placeholder="Scrivi un commento..."
+                rows="2"
+                class="flex-1 resize-none rounded-lg border-0 py-2.5 shadow-sm sm:text-sm px-3 transition-all
+                      bg-[#FAFAFA] text-[#023047] ring-1 ring-inset ring-gray-300 placeholder:text-gray-400
+                      focus:ring-2 focus:ring-inset focus:ring-[#FB8500]
+                      dark:bg-[#219EBC]/10 dark:text-white dark:ring-[#219EBC]/50 dark:placeholder:text-[#8ECAE6]/50
+                      dark:focus:ring-[#FFB703]">
+              </textarea>
+              <button
+                (click)="sendComment()"
+                [disabled]="!newComment.trim() || isSendingComment"
+                class="p-3 rounded-lg bg-[#FB8500] hover:bg-[#FB8500]/90 text-white shadow-sm transition-all
+                      dark:bg-[#FFB703] dark:hover:bg-[#FFB703]/90
+                      disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0">
+                <lucide-icon *ngIf="!isSendingComment" [img]="icons.Send" class="w-4 h-4" [strokeWidth]="2"></lucide-icon>
+                <lucide-icon *ngIf="isSendingComment" [img]="icons.Loader2" class="w-4 h-4 animate-spin" [strokeWidth]="2"></lucide-icon>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
