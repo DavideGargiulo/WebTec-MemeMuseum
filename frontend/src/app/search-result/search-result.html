@@ -1,0 +1,67 @@
+<div class="min-h-screen bg-[#FAFAFA] dark:bg-[#023047] transition-colors duration-300 ml-16">
+  <div class="wrapper pt-10 px-4 pb-12">
+
+    <div class="flex flex-col sm:flex-row items-center justify-between py-8 mb-4 border-b border-gray-200 dark:border-[#219EBC]/20 gap-6">
+      <div class="text-center sm:text-left">
+        <h1 class="text-3xl font-bold text-[#023047] dark:text-white mb-2">Risultati di ricerca</h1>
+        <p class="text-sm font-medium text-gray-600 dark:text-[#8ECAE6]">
+          @if (currentFilters.tags) { Tag: <span class="font-bold text-[#FB8500] dark:text-[#FFB703]">#{{currentFilters.tags}}</span> }
+          @if (currentFilters.startDate) { Data: <span class="font-bold text-[#FB8500] dark:text-[#FFB703]">{{currentFilters.startDate | date}}</span> }
+          @if (!currentFilters.tags && !currentFilters.startDate) { Tutti i meme }
+        </p>
+      </div>
+
+      <div class="flex items-center gap-3 w-full sm:w-auto bg-white dark:bg-black/10 p-2 rounded-xl border border-gray-200 dark:border-[#219EBC]/30 shadow-sm">
+        <label for="sort" class="text-sm font-semibold text-[#023047] dark:text-[#8ECAE6] whitespace-nowrap pl-2">
+          Ordina per:
+        </label>
+        <select
+          id="sort"
+          [(ngModel)]="selectedSort"
+          (change)="onSortChange()"
+          class="bg-gray-50 dark:bg-[#023047] border-0 text-[#023047] dark:text-white text-sm rounded-lg focus:ring-2 focus:ring-[#FB8500] focus:border-[#FB8500] block w-full p-2.5 transition-colors cursor-pointer font-medium outline-none">
+          <option value="date_DESC">Più recenti</option>
+          <option value="date_ASC">Meno recenti</option>
+          <option value="score_DESC">Punteggio migliore (Up - Down)</option>
+          <option value="score_ASC">Punteggio peggiore</option>
+          <option value="upvotes_DESC">Più Upvotati</option>
+          <option value="downvotes_DESC">Più Downvotati</option>
+        </select>
+      </div>
+    </div>
+
+    @if (isLoading()) {
+      <div class="flex justify-center py-20">
+        <lucide-icon [img]="icons.Loader2" class="w-10 h-10 text-[#FB8500] dark:text-[#FFB703] animate-spin"></lucide-icon>
+      </div>
+    }
+
+    @if (!isLoading() && memes().length === 0) {
+      <div class="max-w-2xl mx-auto text-center py-16">
+        <div class="bg-white dark:bg-[#023047] rounded-2xl p-12 shadow-lg border border-gray-200 dark:border-[#219EBC]/30">
+          <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-[#FB8500]/10 dark:bg-[#FFB703]/10 flex items-center justify-center">
+            <lucide-icon [img]="icons.SearchX" class="w-12 h-12 text-[#FB8500] dark:text-[#FFB703]" [strokeWidth]="2"></lucide-icon>
+          </div>
+          <h2 class="text-2xl font-bold text-[#023047] dark:text-white mb-3">Nessun meme trovato</h2>
+          <p class="text-gray-600 dark:text-[#8ECAE6] mb-6">
+            Non abbiamo trovato nessun meme corrispondente ai tuoi filtri di ricerca. Prova a usare parole chiave diverse o a cambiare la data.
+          </p>
+          <button routerLink="/" class="px-6 py-3 bg-[#FB8500] hover:bg-[#FB8500]/90 dark:bg-[#FFB703] dark:hover:bg-[#FFB703]/90 text-white font-semibold rounded-lg transition-colors shadow-sm">
+            Torna alla Home
+          </button>
+        </div>
+      </div>
+    }
+
+    @if (!isLoading() && memes().length > 0) {
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        @for (meme of memes(); track meme.id) {
+          
+          <app-meme-card [meme]="meme"></app-meme-card>
+
+        }
+      </div>
+    }
+
+  </div>
+</div>

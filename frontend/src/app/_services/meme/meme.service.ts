@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError } from 'rxjs/internal/operators/catchError';
@@ -71,11 +71,11 @@ export class MemeService {
   }
 
   getMemeById(id: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/memes/${id}`);
+    return this.http.get(`${this.apiUrl}/${id}`);
   }
 
   addComment(memeId: string, content: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/memes/${memeId}/comments`, { content, withCredentials: true });
+    return this.http.post(`${this.apiUrl}/${memeId}/comments`, { content, withCredentials: true });
   }
 
   getMemeOfTheDay(): Observable<any> {
@@ -86,5 +86,25 @@ export class MemeService {
         return throwError(() => error);
       })
     );
+  }
+
+  searchMemes(filters: any): Observable<any> {
+    let params = new HttpParams()
+      .set('page', filters.page || 1);
+
+    if (filters.sortBy) params = params.set('sortBy', filters.sortBy);
+    if (filters.sortDir) params = params.set('sortDir', filters.sortDir);
+    if (filters.startDate) params = params.set('startDate', filters.startDate);
+    if (filters.endDate) params = params.set('endDate', filters.endDate);
+    
+    if (filters.tags) {
+      const tagsString = Array.isArray(filters.tags) 
+        ? filters.tags.join(',')
+        : filters.tags;
+        
+      params = params.set('tags', tagsString);
+    }
+
+    return this.http.get<any>(`${this.apiUrl}/search`, { params });
   }
 }

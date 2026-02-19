@@ -1,12 +1,13 @@
 import { Routes } from '@angular/router';
 import { guestGuard } from './_guards/guest/guest.guard';
-import { MemeCardComponent } from './_internalComponents/meme-card/meme-card'; 
 import { CreaMemeComponent } from './create-meme/create-meme';
+import { SearchComponent } from './search-result/search-result';
+import { HomeComponent } from './home/home'; 
 
 export const routes: Routes = [
   { 
     path: '', 
-    component: MemeCardComponent, 
+    component: HomeComponent,
     pathMatch: 'full' 
   },
   {
@@ -30,5 +31,6 @@ export const routes: Routes = [
   {
     path: 'meme-of-the-day',
     loadComponent: () => import('./meme-of-the-day/meme-of-the-day').then(m => m.MemeOfTheDayComponent)
-  }
+  },
+  { path: 'search', component: SearchComponent }
 ];

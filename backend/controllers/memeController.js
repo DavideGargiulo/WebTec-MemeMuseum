@@ -402,3 +402,116 @@ export async function getMemeOfTheDay(req, res) {
     res.status(500).json({ message: "Impossibile recuperare il meme del giorno.", error: error.message });
   }
 }
+
+export async function searchMemes(req, res) {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10; 
+    const offset = (page - 1) * limit;
+
+    const { startDate, endDate, tags, sortBy, sortDir } = req.query;
+
+    const memeWhere = {};
+
+    // 1. Filtri per Data
+    if (startDate && endDate) {
+      // Imposta l'inizio alle 00:00:00
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+
+      // Imposta la fine alle 23:59:59
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+
+      memeWhere.createdAt = { [Op.between]: [start, end] };
+    } else if (startDate) {
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+      memeWhere.createdAt = { [Op.gte]: start };
+    } else if (endDate) {
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      memeWhere.createdAt = { [Op.lte]: end };
+    }
+
+    // 2. CORREZIONE TAG: Estrazione preventiva degli ID
+    if (tags) {
+      const tagArray = tags.split(',').map(t => t.trim());
+      
+      // Cerchiamo in anticipo SOLO gli ID dei meme che possiedono i tag richiesti
+      const memesConTag = await Meme.findAll({
+        attributes: ['id'], // Chiediamo solo l'ID per essere velocissimi
+        include: [{
+          model: Tag,
+          as: 'tags',
+          attributes: [],
+          where: { name: { [Op.in]: tagArray } },
+          through: { attributes: [] }
+        }]
+      });
+
+      const matchingMemeIds = memesConTag.map(m => m.id);
+
+      // Se nessun meme ha questi tag, restituiamo subito un array vuoto (risparmia lavoro al server!)
+      if (matchingMemeIds.length === 0) {
+        return res.status(200).json({
+          data: [],
+          pagination: { totalItems: 0, totalPages: 0, currentPage: page, itemsPerPage: limit }
+        });
+      }
+
+      // Aggiungiamo gli ID trovati al filtro principale
+      memeWhere.id = { [Op.in]: matchingMemeIds };
+    }
+
+    // 3. Costruzione dell'ordinamento
+    let orderClause = [['createdAt', 'DESC']]; 
+    const direction = sortDir === 'ASC' ? 'ASC' : 'DESC';
+
+    if (sortBy === 'upvotes') {
+      orderClause = [['upvotesNumber', direction]];
+    } else if (sortBy === 'downvotes') {
+      orderClause = [['downvotesNumber', direction]];
+    } else if (sortBy === 'score') {
+      orderClause = [[database.literal('("Meme"."upvotesNumber" - "Meme"."downvotesNumber")'), direction]];
+    } else if (sortBy === 'date') {
+      orderClause = [['createdAt', direction]];
+    }
+
+    // 4. Esecuzione della query principale (ORA PULITA DA FILTRI SUI TAG!)
+    const { count, rows } = await Meme.findAndCountAll({
+      where: memeWhere,
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'username']
+        },
+        {
+          model: Tag,
+          as: 'tags', // Poiché non c'è il blocco 'where' qui, estrarrà TUTTI i tag del meme!
+          attributes: ['id', 'name'],
+          through: { attributes: [] }
+        }
+      ],
+      order: orderClause,
+      limit: limit,
+      offset: offset,
+      distinct: true 
+    });
+
+    res.status(200).json({
+      data: rows,
+      pagination: {
+        totalItems: count,
+        totalPages: Math.ceil(count / limit),
+        currentPage: page,
+        itemsPerPage: limit
+      }
+    });
+
+  } catch (error) {
+    console.error("Errore nella ricerca dei meme:", error);
+    res.status(500).json({ message: "Errore durante la ricerca", error: error.message });
+  }
+}
