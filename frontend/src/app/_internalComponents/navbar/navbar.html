@@ -35,12 +35,27 @@
   </div>
 
   <div class="flex items-center justify-end w-64 gap-6"> 
-    <a routerLink="/login" class="flex items-center gap-3 text-gray-700 dark:text-gray-200 hover:opacity-70 transition-opacity no-underline cursor-pointer">
-      <div class="p-1 rounded-full border border-gray-300 dark:border-gray-700">
-         <lucide-icon [img]="icons.User" class="w-6 h-6"></lucide-icon>
+    
+    @if (!authService.currentUser()) {
+      <a routerLink="/login" class="flex items-center gap-3 text-gray-700 dark:text-gray-200 hover:opacity-70 transition-opacity no-underline cursor-pointer">
+        <div class="p-1 rounded-full border border-gray-300 dark:border-gray-700">
+           <lucide-icon [img]="icons.User" class="w-6 h-6"></lucide-icon>
+        </div>
+        <span class="text-sm font-semibold hidden md:block">Accedi / Registrati</span>
+      </a>
+    } 
+    @else {
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-3 text-[#023047] dark:text-white cursor-pointer hover:opacity-80 transition-opacity">
+          <div class="p-1 rounded-full border border-[#FB8500] dark:border-[#FFB703] bg-[#FB8500]/10 dark:bg-[#FFB703]/10">
+             <lucide-icon [img]="icons.User" class="w-6 h-6 text-[#FB8500] dark:text-[#FFB703]"></lucide-icon>
+          </div>
+          <span class="text-sm font-bold hidden md:block">
+            {{ authService.currentUser()?.username }}
+          </span>
+        </div>
       </div>
-      <span class="text-sm font-semibold hidden md:block">Accedi / Registrati</span>
-    </a>
-  </div>
+    }
 
+  </div>
 </header>
