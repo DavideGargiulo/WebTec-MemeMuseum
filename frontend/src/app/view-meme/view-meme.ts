@@ -15,6 +15,7 @@ import {
   Loader2
 } from 'lucide-angular';
 import { ChangeDetectorRef } from '@angular/core';
+import { ToastService } from '../_services/toast/toast.service';
 
 interface Comment {
   id: string;
@@ -37,6 +38,7 @@ export class ViewMemeComponent implements OnInit {
   private authService = inject(AuthService);
   private commentService = inject(CommentService);
   private cdr = inject(ChangeDetectorRef);
+  private toastService = inject(ToastService);
 
   readonly icons = { ChevronUp, ChevronDown, Send, Trash2, Loader2 };
 
@@ -92,6 +94,7 @@ export class ViewMemeComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: () => {
+        this.toastService.error('Errore nel caricamento del meme');
         this.router.navigate(['/']);
       }
     });
@@ -111,7 +114,10 @@ export class ViewMemeComponent implements OnInit {
         this.meme!.isLiked = response.data.userVote;
         this.isVoting = false;
       },
-      error: () => { this.isVoting = false; }
+      error: () => { 
+        this.isVoting = false;
+        this.toastService.error('Errore durante il voto del meme');
+      }
     });
   }
   
@@ -134,6 +140,7 @@ export class ViewMemeComponent implements OnInit {
       },
       error: (err) => {
         console.error('Errore nel caricamento dei commenti:', err);
+        this.toastService.error('Errore nel caricamento dei commenti');
       }
     });
   }
@@ -171,10 +178,12 @@ export class ViewMemeComponent implements OnInit {
 
           // 2. MODIFICA: Forziamo l'aggiornamento della UI
           this.cdr.detectChanges(); 
+          this.toastService.success('Commento aggiunto con successo!');
         },
         error: (err) => {
           console.error('Errore durante l\'invio del commento:', err);
           this.isSendingComment = false; // Sblocca il pulsante in caso di errore
+          this.toastService.error('Errore durante l\'invio del commento');
           this.cdr.detectChanges(); // Aggiorniamo la UI anche in caso di errore
         }
       });

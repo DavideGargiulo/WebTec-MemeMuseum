@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } 
 import { RouterModule, Router } from '@angular/router';
 import { LucideAngularModule, ImagePlus, X, Plus, Upload, Loader2 } from 'lucide-angular';
 import { MemeService } from '../_services/meme/meme.service';
+import { ToastService } from '../_services/toast/toast.service';
 
 @Component({
   selector: 'app-crea-meme',
@@ -40,7 +41,7 @@ export class CreaMemeComponent {
   currentTag = '';
   selectedFile: File | null = null;
 
-  constructor(private fb: FormBuilder, private memeService: MemeService, private router: Router) {
+  constructor(private fb: FormBuilder, private memeService: MemeService, private router: Router, private toastService: ToastService) {
     this.memeForm = this.fb.group({
       image: [null, Validators.required],
       title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
@@ -82,14 +83,14 @@ export class CreaMemeComponent {
   handleFile(file: File): void {
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      alert('Per favore carica solo file immagine');
+      this.toastService.error('Per favore carica solo file immagine');
       return;
     }
 
     // Validate file size (10MB max)
     const maxSize = 10 * 1024 * 1024; // 10MB in bytes
     if (file.size > maxSize) {
-      alert('Il file è troppo grande. Dimensione massima: 10MB');
+      this.toastService.error('Il file è troppo grande. Dimensione massima: 10MB');
       return;
     }
 
@@ -129,14 +130,14 @@ export class CreaMemeComponent {
 
     // Check if tag already exists
     if (this.tags().includes(tag)) {
-      alert('Questo tag è già stato aggiunto');
+      this.toastService.warning('Questo tag è già stato aggiunto');
       this.currentTag = '';
       return;
     }
 
     // Check max tags limit
     if (this.tags().length >= 10) {
-      alert('Puoi aggiungere massimo 10 tag');
+      this.toastService.warning('Puoi aggiungere massimo 10 tag');
       return;
     }
 
@@ -183,12 +184,13 @@ export class CreaMemeComponent {
     this.memeService.createMeme(formData).subscribe({
       next: (response) => {
         this.isLoading.set(false);
+        this.toastService.success('Meme pubblicato con successo!');
         this.router.navigate(['/']);
       },
       error: (error) => {
         this.isLoading.set(false);
         console.error('Error creating meme:', error);
-        alert('Errore durante la pubblicazione del meme');
+        this.toastService.error('Errore durante la pubblicazione del meme');
       }
     });
   }

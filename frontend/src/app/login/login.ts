@@ -4,6 +4,7 @@ import { RouterModule, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { AuthService } from '../_services/auth/auth.service';
+import { ToastService } from '../_services/toast/toast.service';
 
 @Component({
   selector: 'app-login',
@@ -18,7 +19,8 @@ export class LoginComponent {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly toastService: ToastService
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -38,12 +40,13 @@ export class LoginComponent {
     this.authService.login(this.loginForm.value).subscribe({
       next: () => {
         this.isLoading.set(false);
+        this.toastService.success('Login effettuato con successo!');
         this.router.navigate(['/']);
       },
       error: (err) => {
         this.isLoading.set(false);
         const errorMessage = err?.error?.message || 'Errore sconosciuto';
-        alert('Login fallito: ' + errorMessage);
+        this.toastService.error(`Login fallito: ${errorMessage}`);
       },
     });
   }

@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { AuthService } from '../_services/auth/auth.service';
+import { ToastService } from '../_services/toast/toast.service';
 
 @Component({
   selector: 'app-signup',
@@ -20,7 +21,8 @@ export class SignupComponent {
   constructor(
     private fb: FormBuilder, 
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private toastService: ToastService
   ) {
     this.signupForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
@@ -53,6 +55,7 @@ export class SignupComponent {
       this.authService.register({ username, email, password }).subscribe({
         next: () => {
           console.log('Registrazione completata!');
+          this.toastService.success('Registrazione completata!');
           this.router.navigate(['/']); // Va alla home già loggato
         },
         error: (err) => {
@@ -60,8 +63,9 @@ export class SignupComponent {
           // Gestione errori specifica dal backend
           if (err.error && err.error.message) {
             this.errorMessage.set(err.error.message); // Es. "Email già in uso"
+            this.toastService.error(err.error.message);
           } else {
-            this.errorMessage.set('Si è verificato un errore. Riprova.');
+            this.toastService.error('Si è verificato un errore. Riprova.');
           }
         }
       });
