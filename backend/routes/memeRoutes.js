@@ -7,7 +7,8 @@ import {
   voteMeme, 
   getMemeById, 
   getMemeOfTheDay, 
-  searchMemes 
+  searchMemes,
+  searchTagsForAutocomplete
 } from "../controllers/memeController.js";
 import { protect } from "../middleware/utils/authMiddleware.js";
 
@@ -18,6 +19,8 @@ router.get('/', getAllMemes);
 router.get('/search', searchMemes);
 
 router.get('/meme-of-the-day', getMemeOfTheDay);
+
+router.get('/tags/search', searchTagsForAutocomplete);
 
 router.post('/create', protect, uploader.single("image"), createMeme);
 

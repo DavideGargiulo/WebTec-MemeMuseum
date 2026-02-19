@@ -1,61 +1,72 @@
-<header class="fixed top-0 left-0 right-0 h-16 bg-white dark:bg-black border-b border-gray-200 dark:border-gray-800 z-50 px-4 flex items-center justify-between">
+<header class="fixed top-0 left-0 right-0 h-16 bg-white dark:bg-black border-b border-gray-200 dark:border-gray-800 z-50 px-2 md:px-4 flex items-center justify-between gap-2 md:gap-4 transition-all">
 
-  <div class="flex items-center gap-2 w-64"> 
+  <div class="flex items-center shrink-0 w-auto md:w-64"> 
     <a routerLink="/">
-      <img src="assets/logo-meme.svg" alt="Meme Museum" class="h-16 w-auto object-contain dark:invert">
+      <img src="assets/logo-meme.svg" alt="Meme Museum" class="h-10 md:h-16 w-auto object-contain dark:invert">
     </a>
   </div>
 
-  <div class="flex-1 max-w-3xl px-4">
-    <form (ngSubmit)="onSearch()" class="flex items-center gap-3">
+  <div class="flex-1 max-w-3xl">
+    <form (ngSubmit)="onSearch()" class="flex items-center gap-2 w-full relative">
       
       <div class="relative group flex-1">
-        <div class="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
-          <lucide-icon [img]="icons.Search" class="w-5 h-5 text-gray-400 group-focus-within:text-black dark:group-focus-within:text-white transition-colors"></lucide-icon>
+        <div class="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+          <lucide-icon [img]="icons.Search" class="w-4 h-4 md:w-5 md:h-5 text-gray-400 group-focus-within:text-black dark:group-focus-within:text-white transition-colors"></lucide-icon>
         </div>
+        
         <input type="text" 
                name="searchQuery"
                [(ngModel)]="searchQuery"
-               placeholder="Cerca per tag (es. coding, funny)..." 
-               class="w-full h-11 pl-12 pr-4 bg-gray-100 dark:bg-gray-900 border-transparent focus:bg-white dark:focus:bg-black border focus:border-gray-300 dark:focus:border-gray-700 rounded-full outline-none transition-all placeholder:text-gray-500 text-sm text-gray-900 dark:text-gray-100"
+               placeholder="Cerca per tag..." 
+               class="w-full h-10 md:h-11 pl-9 md:pl-12 pr-10 md:pr-4 bg-gray-100 dark:bg-gray-900 border-transparent focus:bg-white dark:focus:bg-black border focus:border-gray-300 dark:focus:border-gray-700 rounded-full outline-none transition-all placeholder:text-gray-500 text-sm md:text-base text-gray-900 dark:text-gray-100"
         >
+
+        <button type="button" 
+                (click)="toggleDateFilter()"
+                class="md:hidden absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-500 transition-colors">
+          <lucide-icon [img]="icons.Filter" class="w-4 h-4"></lucide-icon>
+        </button>
       </div>
 
-      <div class="relative w-40">
+      <div [ngClass]="{'hidden md:block': !isDateFilterOpen, 'absolute top-full mt-2 right-0 shadow-lg': isDateFilterOpen}" 
+           class="md:relative w-48 md:w-40 bg-white dark:bg-black p-2 md:p-0 rounded-2xl md:rounded-none border border-gray-200 dark:border-none md:border-transparent z-50 origin-top-right animate-in fade-in zoom-in-95 duration-200">
         <input type="date" 
                name="searchDate"
                [(ngModel)]="searchDate"
-               class="w-full h-11 px-4 bg-gray-100 dark:bg-gray-900 border-transparent focus:bg-white dark:focus:bg-black border focus:border-gray-300 dark:focus:border-gray-700 rounded-full outline-none transition-all text-sm text-gray-500 dark:text-gray-400 focus:text-gray-900 dark:focus:text-gray-100"
+               (change)="onSearch()"
+               class="w-full h-10 md:h-11 px-3 md:px-4 bg-gray-100 dark:bg-gray-900 border-transparent focus:bg-white dark:focus:bg-black border focus:border-gray-300 dark:focus:border-gray-700 rounded-full md:rounded-full outline-none transition-all text-sm text-gray-500 dark:text-gray-400 focus:text-gray-900 dark:focus:text-gray-100"
         >
       </div>
 
       <button type="submit" class="hidden">Cerca</button>
-
     </form>
   </div>
 
-  <div class="flex items-center justify-end w-64 gap-6"> 
-    
+  <div class="flex items-center justify-end shrink-0 w-auto md:w-64"> 
     @if (!authService.currentUser()) {
-      <a routerLink="/login" class="flex items-center gap-3 text-gray-700 dark:text-gray-200 hover:opacity-70 transition-opacity no-underline cursor-pointer">
-        <div class="p-1 rounded-full border border-gray-300 dark:border-gray-700">
-           <lucide-icon [img]="icons.User" class="w-6 h-6"></lucide-icon>
+      <a routerLink="/login" class="flex items-center gap-1.5 md:gap-3 text-gray-700 dark:text-gray-200 hover:opacity-70 transition-opacity no-underline cursor-pointer">
+        <div class="p-1 md:p-1.5 rounded-full border border-gray-300 dark:border-gray-700">
+           <lucide-icon [img]="icons.User" class="w-4 h-4 md:w-6 md:h-6"></lucide-icon>
         </div>
-        <span class="text-sm font-semibold hidden md:block">Accedi / Registrati</span>
+        <span class="text-xs md:text-sm font-semibold whitespace-nowrap">
+          Accedi<span class="hidden md:inline"> / Registrati</span>
+        </span>
       </a>
     } 
     @else {
-      <div class="flex items-center gap-4">
-        <div class="flex items-center gap-3 text-[#023047] dark:text-white cursor-pointer hover:opacity-80 transition-opacity">
-          <div class="p-1 rounded-full border border-[#FB8500] dark:border-[#FFB703] bg-[#FB8500]/10 dark:bg-[#FFB703]/10">
-             <lucide-icon [img]="icons.User" class="w-6 h-6 text-[#FB8500] dark:text-[#FFB703]"></lucide-icon>
-          </div>
-          <span class="text-sm font-bold hidden md:block">
-            {{ authService.currentUser()?.username }}
-          </span>
+      <div class="flex items-center gap-1.5 md:gap-3 text-[#023047] dark:text-white cursor-pointer hover:opacity-80 transition-opacity">
+        <div class="p-1 md:p-1.5 rounded-full border border-[#FB8500] dark:border-[#FFB703] bg-[#FB8500]/10 dark:bg-[#FFB703]/10">
+           <lucide-icon [img]="icons.User" class="w-4 h-4 md:w-6 md:h-6 text-[#FB8500] dark:text-[#FFB703]"></lucide-icon>
         </div>
+        <span class="text-xs md:text-sm font-bold truncate block max-w-[70px] md:max-w-[120px]">
+          {{ authService.currentUser()?.username }}
+        </span>
       </div>
     }
-
   </div>
+
 </header>
+
+@if (isDateFilterOpen) {
+  <div class="fixed inset-0 z-40 md:hidden" (click)="isDateFilterOpen = false"></div>
+}

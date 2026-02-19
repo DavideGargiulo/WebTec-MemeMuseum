@@ -1,7 +1,6 @@
 <div class="min-h-screen bg-[#FAFAFA] dark:bg-[#023047] pt-16 pb-12 transition-colors duration-200">
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     
-    <!-- Header -->
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-[#023047] dark:text-white mb-2">
         Crea un nuovo meme
@@ -11,17 +10,14 @@
       </p>
     </div>
 
-    <!-- Form -->
     <form [formGroup]="memeForm" (ngSubmit)="onSubmit()" class="space-y-6">
       
-      <!-- Image Upload Card -->
       <div class="bg-white dark:bg-[#023047] rounded-2xl shadow-lg border border-gray-200 dark:border-[#219EBC]/30 p-6 transition-colors duration-200">
         <label class="block text-sm font-semibold text-[#023047] dark:text-[#8ECAE6] mb-4">
           Immagine Meme *
         </label>
         
         <div class="relative">
-          <!-- Upload Area -->
           <div 
             (click)="fileInput.click()"
             (dragover)="onDragOver($event)"
@@ -33,7 +29,6 @@
                    hover:border-[#FB8500] dark:hover:border-[#FFB703] transition-all duration-200
                    bg-gray-50 dark:bg-[#219EBC]/5">
             
-            <!-- Preview Image -->
             @if (imagePreview()) {
               <div class="relative inline-block max-w-full">
                 <img [src]="imagePreview()" alt="Preview" class="max-h-96 rounded-lg mx-auto shadow-md">
@@ -45,7 +40,6 @@
                 </button>
               </div>
             } @else {
-              <!-- Upload Icon & Text -->
               <div class="flex flex-col items-center gap-3">
                 <div class="p-4 bg-gray-100 dark:bg-[#219EBC]/10 rounded-full">
                   <lucide-icon [img]="icons.ImagePlus" class="w-8 h-8 text-[#FB8500] dark:text-[#FFB703]"></lucide-icon>
@@ -78,10 +72,8 @@
         </div>
       </div>
 
-      <!-- Title & Description Card -->
       <div class="bg-white dark:bg-[#023047] rounded-2xl shadow-lg border border-gray-200 dark:border-[#219EBC]/30 p-6 transition-colors duration-200 space-y-5">
         
-        <!-- Title -->
         <div>
           <label for="title" class="block text-sm font-semibold text-[#023047] dark:text-[#8ECAE6] mb-2">
             Titolo *
@@ -112,7 +104,6 @@
           </div>
         </div>
 
-        <!-- Description -->
         <div>
           <label for="description" class="block text-sm font-semibold text-[#023047] dark:text-[#8ECAE6] mb-2">
             Descrizione *
@@ -144,29 +135,40 @@
         </div>
       </div>
 
-      <!-- Tags Card -->
       <div class="bg-white dark:bg-[#023047] rounded-2xl shadow-lg border border-gray-200 dark:border-[#219EBC]/30 p-6 transition-colors duration-200">
         <label class="block text-sm font-semibold text-[#023047] dark:text-[#8ECAE6] mb-3">
           Tags
         </label>
         
-        <!-- Tag Input -->
-        <div class="flex gap-2 mb-3">
+        <div class="flex gap-2 mb-3 relative">
           <div class="relative flex-1">
             <input
               #tagInput
               type="text"
-              [(ngModel)]="currentTag"
+              [ngModel]="currentTag"
+              (ngModelChange)="onTagInput($event)"
               [ngModelOptions]="{standalone: true}"
-              (keydown.enter)="addTag($event)"
+              (keydown.enter)="addTag(currentTag, $event)"
               placeholder="Aggiungi un tag e premi Invio"
               maxlength="20"
+              autocomplete="off"
               class="block w-full rounded-lg border-0 py-2.5 shadow-sm sm:text-sm px-3 transition-all
                      bg-white text-[#023047] ring-1 ring-inset ring-gray-300 placeholder:text-gray-400
                      focus:ring-2 focus:ring-inset focus:ring-[#FB8500]
                      dark:bg-[#219EBC]/10 dark:text-white dark:ring-[#219EBC]/50 dark:placeholder:text-[#8ECAE6]/50
                      dark:focus:ring-[#FFB703]"
             />
+            
+            @if (suggestedTags().length > 0) {
+              <ul class="absolute z-10 top-full mt-1 w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                @for (tag of suggestedTags(); track tag) {
+                  <li (click)="addTag(tag)" 
+                      class="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 transition-colors flex items-center gap-2">
+                    <span class="text-gray-400">#</span>{{ tag }}
+                  </li>
+                }
+              </ul>
+            }
           </div>
           <button
             type="button"
@@ -180,7 +182,6 @@
           </button>
         </div>
 
-        <!-- Tags List -->
         @if (tags().length > 0) {
           <div class="flex flex-wrap gap-2">
             @for (tag of tags(); track tag) {
@@ -204,11 +205,10 @@
         }
 
         <p class="text-xs text-gray-500 dark:text-[#8ECAE6]/70 mt-3">
-          Aggiungi fino a 10 tag per aiutare gli altri a trovare il tuo meme
+          Aggiungi fino a 3 tag per aiutare gli altri a trovare il tuo meme
         </p>
       </div>
 
-      <!-- Action Buttons -->
       <div class="flex gap-3 justify-end">
         <button
           type="button"

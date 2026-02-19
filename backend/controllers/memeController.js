@@ -515,3 +515,32 @@ export async function searchMemes(req, res) {
     res.status(500).json({ message: "Errore durante la ricerca", error: error.message });
   }
 }
+
+export async function searchTagsForAutocomplete(req, res) {
+  try {
+    const query = req.query.q || '';
+    
+    // Se la query è vuota, restituisce un array vuoto
+    if (!query.trim()) {
+      return res.status(200).json({ data: [] });
+    }
+
+    // Cerca i tag che contengono la stringa cercata
+    const tags = await Tag.findAll({
+      where: {
+        name: {
+          [Op.like]: `%${query.toLowerCase()}%`
+        }
+      },
+      limit: 10,
+      attributes: ['name']
+    });
+
+    // Restituisce solo un array di stringhe (es. ['coding', 'cat', 'funny'])
+    res.status(200).json({ data: tags.map(t => t.name) });
+
+  } catch (error) {
+    console.error("Errore durante la ricerca dei tag per autocomplete:", error);
+    res.status(500).json({ message: "Errore durante la ricerca dei tag", error: error.message });
+  }
+}

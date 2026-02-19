@@ -2,9 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-// Aggiunto LogOut alle icone
-import { LucideAngularModule, Search, Mic, User, Calendar, LogOut } from 'lucide-angular';
-// Importiamo il servizio di autenticazione
+import { LucideAngularModule, Search, Mic, User, Calendar, LogOut, Filter } from 'lucide-angular';
 import { AuthService } from '../../_services/auth/auth.service';
 
 @Component({
@@ -20,13 +18,20 @@ export class NavbarComponent {
 
   searchQuery = '';
   searchDate = '';
+  isDateFilterOpen = false; // <-- Nuova variabile per il menu mobile
 
   readonly icons = { 
     Search, 
     Mic, 
     User,
     Calendar,
+    LogOut,
+    Filter // <-- Nuova icona aggiunta
   };
+
+  toggleDateFilter() {
+    this.isDateFilterOpen = !this.isDateFilterOpen;
+  }
 
   onSearch() {
     const queryParams: any = {};
@@ -40,6 +45,7 @@ export class NavbarComponent {
       queryParams.endDate = this.searchDate;
     }
 
+    this.isDateFilterOpen = false; // Chiude il menu della data se è aperto
     this.router.navigate(['/search'], { queryParams });
   }
 

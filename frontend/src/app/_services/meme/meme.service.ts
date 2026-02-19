@@ -6,6 +6,7 @@ import { Meme, MemeResponse } from '../../_types/meme.type';
 import { Observable } from 'rxjs/internal/Observable';
 import { tap } from 'rxjs/internal/operators/tap';
 import { throwError } from 'rxjs/internal/observable/throwError';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -106,5 +107,15 @@ export class MemeService {
     }
 
     return this.http.get<any>(`${this.apiUrl}/search`, { params });
+  }
+
+  searchTagsAutocomplete(query: string): Observable<string[]> {
+    return this.http.get<{data: string[]}>(`${this.apiUrl}/tags/search?q=${query}`).pipe(
+      map(response => response.data),
+      catchError(error => {
+        console.error('Errore nel recupero dei tag suggeriti', error);
+        return throwError(() => error);
+      })
+    );
   }
 }
