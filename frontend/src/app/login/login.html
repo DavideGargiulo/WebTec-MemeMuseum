@@ -1,23 +1,18 @@
-<div
-  class="min-h-screen bg-[#FAFAFA] dark:bg-[#023047] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans transition-colors duration-200"
->
+<div class="min-h-screen bg-bg-main flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans transition-colors duration-200">
   <div class="sm:mx-auto sm:w-full sm:max-w-md text-center mb-6">
     <img src="assets/logo-meme.svg" alt="Meme Museum" class="mx-auto h-20 w-auto dark:brightness-0 dark:invert" />
 
-    <h2 class="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-[#023047] dark:text-white">
+    <h2 class="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-text-main">
       Accedi al tuo account
     </h2>
   </div>
 
   <div class="sm:mx-auto sm:w-full sm:max-w-[480px]">
-    <div
-      class="bg-white dark:bg-[#023047] px-6 py-12 shadow-lg sm:rounded-lg sm:px-12 border border-gray-200 dark:border-[#219EBC]/30 transition-colors duration-200"
-    >
-      <!-- ✅ COLLEGATO AD ANGULAR -->
+    <div class="bg-bg-card px-6 py-12 shadow-lg sm:rounded-lg sm:px-12 border border-border-main transition-colors duration-200">
+      
       <form class="space-y-6" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <!-- Email Field -->
         <div>
-          <label for="email" class="block text-sm font-medium leading-6 text-[#023047] dark:text-[#8ECAE6]">
+          <label for="email" class="block text-sm font-medium leading-6 text-text-muted">
             Indirizzo Email
           </label>
           <div class="mt-2">
@@ -27,17 +22,14 @@
               placeholder="nome@esempio.com"
               formControlName="email"
               class="block w-full rounded-md border-0 py-2.5 shadow-sm sm:text-sm sm:leading-6 px-3 transition-all
-                     bg-white text-[#023047] ring-1 ring-inset ring-gray-300 placeholder:text-gray-400
-                     focus:ring-2 focus:ring-inset focus:ring-[#FB8500]
-                     dark:bg-[#219EBC]/10 dark:text-white dark:ring-[#219EBC]/50 dark:placeholder:text-[#8ECAE6]/50
-                     dark:focus:ring-[#FFB703]"
+                     bg-bg-main text-text-main ring-1 ring-inset ring-border-main placeholder:text-text-muted/70
+                     focus:ring-2 focus:ring-inset focus:ring-accent outline-none"
             />
           </div>
         </div>
 
-        <!-- Password Field -->
         <div>
-          <label for="password" class="block text-sm font-medium leading-6 text-[#023047] dark:text-[#8ECAE6]">
+          <label for="password" class="block text-sm font-medium leading-6 text-text-muted">
             Password
           </label>
           <div class="mt-2">
@@ -47,39 +39,33 @@
               placeholder="••••••••"
               formControlName="password"
               class="block w-full rounded-md border-0 py-2.5 shadow-sm sm:text-sm sm:leading-6 px-3 transition-all
-                     bg-white text-[#023047] ring-1 ring-inset ring-gray-300 placeholder:text-gray-400
-                     focus:ring-2 focus:ring-inset focus:ring-[#FB8500]
-                     dark:bg-[#219EBC]/10 dark:text-white dark:ring-[#219EBC]/50 dark:placeholder:text-[#8ECAE6]/50
-                     dark:focus:ring-[#FFB703]"
+                     bg-bg-main text-text-main ring-1 ring-inset ring-border-main placeholder:text-text-muted/70
+                     focus:ring-2 focus:ring-inset focus:ring-accent outline-none"
             />
           </div>
         </div>
 
-        <!-- Remember Me -->
         <div class="flex items-center justify-between">
           <div class="flex items-center">
             <input
               id="remember-me"
               type="checkbox"
               formControlName="rememberMe"
-              class="h-4 w-4 rounded border-gray-300 text-[#FB8500] focus:ring-[#FB8500]
-                     dark:border-[#219EBC] dark:bg-[#219EBC]/10 dark:focus:ring-[#FFB703] dark:checked:bg-[#FFB703]"
+              class="h-4 w-4 rounded border-border-main text-accent focus:ring-accent bg-bg-main checked:bg-accent"
             />
-            <label for="remember-me" class="ml-2 block text-sm leading-6 text-[#023047] dark:text-[#8ECAE6]">
+            <label for="remember-me" class="ml-2 block text-sm leading-6 text-text-muted">
               Ricordami
             </label>
           </div>
         </div>
 
-        <!-- Submit Button -->
         <div>
           <button
             type="submit"
             [disabled]="isLoading() || loginForm.invalid"
-            class="flex w-full justify-center rounded-md bg-[#FB8500] px-3 py-2.5 text-sm font-semibold leading-6 text-white shadow-sm
-                   hover:bg-[#FB8500]/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
-                   focus-visible:outline-[#FB8500] transition-all
-                   dark:bg-[#FFB703] dark:hover:bg-[#FFB703]/90 dark:focus-visible:outline-[#FFB703]
+            class="flex w-full justify-center rounded-md bg-accent px-3 py-2.5 text-sm font-semibold leading-6 text-white shadow-sm
+                   hover:bg-accent-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
+                   focus-visible:outline-accent transition-all
                    disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {{ isLoading() ? 'Accesso...' : 'Sign in' }}
@@ -87,14 +73,9 @@
         </div>
       </form>
 
-      <!-- Sign up link -->
-      <p class="mt-10 text-center text-sm text-[#023047] dark:text-[#8ECAE6]">
+      <p class="mt-10 text-center text-sm text-text-muted">
         Non sei ancora membro?
-        <!-- ✅ routerLink per evitare full reload -->
-        <a
-          routerLink="/signup"
-          class="font-semibold leading-6 text-[#FB8500] hover:text-[#FB8500]/80 dark:text-[#FFB703] dark:hover:text-[#FFB703]/80 cursor-pointer transition-colors"
-        >
+        <a routerLink="/signup" class="font-semibold leading-6 text-accent hover:text-accent-hover cursor-pointer transition-colors">
           Registrati ora!
         </a>
       </p>

@@ -103,20 +103,30 @@ export class ViewMemeComponent implements OnInit {
   vote(isUpvote: boolean) {
     if (!this.meme || this.isVoting) return;
     if (!this.authService.currentUser()) {
-      this.router.navigate(['/login']);
+      this.toastService.warning('Devi accedere per poter votare un meme!');
       return;
     }
+    
     this.isVoting = true;
+    
     this.memeService.voteMeme(this.meme.id, isUpvote).subscribe({
       next: (response: any) => {
-        this.meme!.likes = response.data.upvotesNumber;
-        this.meme!.dislikes = response.data.downvotesNumber;
-        this.meme!.isLiked = response.data.userVote;
+        this.meme = {
+          ...this.meme!,
+          likes: response.data.upvotesNumber,
+          dislikes: response.data.downvotesNumber,
+          isLiked: response.data.userVote
+        };
+        
         this.isVoting = false;
+        
+        this.cdr.detectChanges(); 
       },
-      error: () => { 
+      error: (err) => { 
+        console.error('Errore voto:', err);
         this.isVoting = false;
         this.toastService.error('Errore durante il voto del meme');
+        this.cdr.detectChanges();
       }
     });
   }
@@ -164,19 +174,15 @@ export class ViewMemeComponent implements OnInit {
             date: nuovoCommentoDalDb.createdAt
           };
 
-          // 1. MODIFICA: Creiamo una nuova reference dell'array unendo il nuovo commento a quelli vecchi
           this.comments = [commentoFormattato, ...this.comments];
           
-          // Incrementiamo visivamente il contatore del meme
           if (this.meme) {
             this.meme.comments++;
           }
 
-          // Resettiamo la textarea e lo stato di caricamento
           this.newComment = '';
           this.isSendingComment = false;
 
-          // 2. MODIFICA: Forziamo l'aggiornamento della UI
           this.cdr.detectChanges(); 
           this.toastService.success('Commento aggiunto con successo!');
         },

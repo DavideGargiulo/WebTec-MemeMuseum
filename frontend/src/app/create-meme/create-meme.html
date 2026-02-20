@@ -1,19 +1,19 @@
-<div class="min-h-screen bg-[#FAFAFA] dark:bg-[#023047] pt-16 pb-12 transition-colors duration-200">
+<div class="min-h-screen bg-bg-main pt-16 pb-12 transition-colors duration-200">
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     
     <div class="mb-8">
-      <h1 class="text-3xl font-bold text-[#023047] dark:text-white mb-2">
+      <h1 class="text-3xl font-bold text-text-main mb-2">
         Crea un nuovo meme
       </h1>
-      <p class="text-sm text-gray-600 dark:text-[#8ECAE6]">
+      <p class="text-sm text-text-muted">
         Carica un'immagine e aggiungi titolo, descrizione e tag per condividere il tuo meme
       </p>
     </div>
 
     <form [formGroup]="memeForm" (ngSubmit)="onSubmit()" class="space-y-6">
       
-      <div class="bg-white dark:bg-[#023047] rounded-2xl shadow-lg border border-gray-200 dark:border-[#219EBC]/30 p-6 transition-colors duration-200">
-        <label class="block text-sm font-semibold text-[#023047] dark:text-[#8ECAE6] mb-4">
+      <div class="bg-bg-card rounded-2xl shadow-lg border border-border-main p-6 transition-colors duration-200">
+        <label class="block text-sm font-semibold text-text-main mb-4">
           Immagine Meme *
         </label>
         
@@ -23,11 +23,9 @@
             (dragover)="onDragOver($event)"
             (dragleave)="onDragLeave($event)"
             (drop)="onDrop($event)"
-            [class.border-[#FB8500]]="isDragging()"
-            [class.dark:border-[#FFB703]]="isDragging()"
-            class="border-2 border-dashed border-gray-300 dark:border-[#219EBC]/50 rounded-xl p-8 text-center cursor-pointer
-                   hover:border-[#FB8500] dark:hover:border-[#FFB703] transition-all duration-200
-                   bg-gray-50 dark:bg-[#219EBC]/5">
+            [class.border-accent]="isDragging()"
+            class="border-2 border-dashed border-border-main rounded-xl p-8 text-center cursor-pointer
+                   hover:border-accent transition-all duration-200 bg-bg-main">
             
             @if (imagePreview()) {
               <div class="relative inline-block max-w-full">
@@ -41,15 +39,15 @@
               </div>
             } @else {
               <div class="flex flex-col items-center gap-3">
-                <div class="p-4 bg-gray-100 dark:bg-[#219EBC]/10 rounded-full">
-                  <lucide-icon [img]="icons.ImagePlus" class="w-8 h-8 text-[#FB8500] dark:text-[#FFB703]"></lucide-icon>
+                <div class="p-4 bg-accent/10 rounded-full">
+                  <lucide-icon [img]="icons.ImagePlus" class="w-8 h-8 text-accent"></lucide-icon>
                 </div>
                 <div>
-                  <p class="text-sm font-medium text-[#023047] dark:text-white mb-1">
+                  <p class="text-sm font-medium text-text-main mb-1">
                     Clicca per caricare o trascina qui
                   </p>
-                  <p class="text-xs text-gray-500 dark:text-[#8ECAE6]/70">
-                    PNG, JPG, GIF fino a 10MB
+                  <p class="text-xs text-text-muted">
+                    PNG, JPG fino a 5MB
                   </p>
                 </div>
               </div>
@@ -65,17 +63,17 @@
           </div>
           
           @if (memeForm.get('image')?.invalid && memeForm.get('image')?.touched) {
-            <p class="mt-2 text-sm text-red-600 dark:text-red-400">
+            <p class="mt-2 text-sm text-red-500">
               L'immagine è obbligatoria
             </p>
           }
         </div>
       </div>
 
-      <div class="bg-white dark:bg-[#023047] rounded-2xl shadow-lg border border-gray-200 dark:border-[#219EBC]/30 p-6 transition-colors duration-200 space-y-5">
+      <div class="bg-bg-card rounded-2xl shadow-lg border border-border-main p-6 transition-colors duration-200 space-y-5">
         
         <div>
-          <label for="title" class="block text-sm font-semibold text-[#023047] dark:text-[#8ECAE6] mb-2">
+          <label for="title" class="block text-sm font-semibold text-text-main mb-2">
             Titolo *
           </label>
           <input
@@ -84,28 +82,26 @@
             formControlName="title"
             placeholder="Es: Quando il codice funziona al primo tentativo"
             maxlength="100"
-            class="block w-full rounded-lg border-0 py-2.5 shadow-sm sm:text-sm px-3 transition-all
-                   bg-white text-[#023047] ring-1 ring-inset ring-gray-300 placeholder:text-gray-400
-                   focus:ring-2 focus:ring-inset focus:ring-[#FB8500]
-                   dark:bg-[#219EBC]/10 dark:text-white dark:ring-[#219EBC]/50 dark:placeholder:text-[#8ECAE6]/50
-                   dark:focus:ring-[#FFB703]"
+            class="block w-full rounded-lg border-0 py-2.5 shadow-sm sm:text-sm px-3 transition-all outline-none
+                   bg-bg-main text-text-main ring-1 ring-inset ring-border-main placeholder:text-text-muted/70
+                   focus:ring-2 focus:ring-inset focus:ring-accent"
           />
           <div class="flex justify-between mt-1">
             @if (memeForm.get('title')?.invalid && memeForm.get('title')?.touched) {
-              <p class="text-xs text-red-600 dark:text-red-400">
+              <p class="text-xs text-red-500">
                 Il titolo è obbligatorio (min 3 caratteri)
               </p>
             } @else {
               <span></span>
             }
-            <span class="text-xs text-gray-500 dark:text-[#8ECAE6]/70">
+            <span class="text-xs text-text-muted">
               {{ memeForm.get('title')?.value?.length || 0 }}/100
             </span>
           </div>
         </div>
 
         <div>
-          <label for="description" class="block text-sm font-semibold text-[#023047] dark:text-[#8ECAE6] mb-2">
+          <label for="description" class="block text-sm font-semibold text-text-main mb-2">
             Descrizione *
           </label>
           <textarea
@@ -114,29 +110,27 @@
             rows="4"
             placeholder="Descrivi il tuo meme..."
             maxlength="500"
-            class="block w-full rounded-lg border-0 py-2.5 shadow-sm sm:text-sm px-3 transition-all resize-none
-                   bg-white text-[#023047] ring-1 ring-inset ring-gray-300 placeholder:text-gray-400
-                   focus:ring-2 focus:ring-inset focus:ring-[#FB8500]
-                   dark:bg-[#219EBC]/10 dark:text-white dark:ring-[#219EBC]/50 dark:placeholder:text-[#8ECAE6]/50
-                   dark:focus:ring-[#FFB703]"
+            class="block w-full rounded-lg border-0 py-2.5 shadow-sm sm:text-sm px-3 transition-all resize-none outline-none
+                   bg-bg-main text-text-main ring-1 ring-inset ring-border-main placeholder:text-text-muted/70
+                   focus:ring-2 focus:ring-inset focus:ring-accent"
           ></textarea>
           <div class="flex justify-between mt-1">
             @if (memeForm.get('description')?.invalid && memeForm.get('description')?.touched) {
-              <p class="text-xs text-red-600 dark:text-red-400">
+              <p class="text-xs text-red-500">
                 La descrizione è obbligatoria (min 10 caratteri)
               </p>
             } @else {
               <span></span>
             }
-            <span class="text-xs text-gray-500 dark:text-[#8ECAE6]/70">
+            <span class="text-xs text-text-muted">
               {{ memeForm.get('description')?.value?.length || 0 }}/500
             </span>
           </div>
         </div>
       </div>
 
-      <div class="bg-white dark:bg-[#023047] rounded-2xl shadow-lg border border-gray-200 dark:border-[#219EBC]/30 p-6 transition-colors duration-200">
-        <label class="block text-sm font-semibold text-[#023047] dark:text-[#8ECAE6] mb-3">
+      <div class="bg-bg-card rounded-2xl shadow-lg border border-border-main p-6 transition-colors duration-200">
+        <label class="block text-sm font-semibold text-text-main mb-3">
           Tags
         </label>
         
@@ -152,19 +146,17 @@
               placeholder="Aggiungi un tag e premi Invio"
               maxlength="20"
               autocomplete="off"
-              class="block w-full rounded-lg border-0 py-2.5 shadow-sm sm:text-sm px-3 transition-all
-                     bg-white text-[#023047] ring-1 ring-inset ring-gray-300 placeholder:text-gray-400
-                     focus:ring-2 focus:ring-inset focus:ring-[#FB8500]
-                     dark:bg-[#219EBC]/10 dark:text-white dark:ring-[#219EBC]/50 dark:placeholder:text-[#8ECAE6]/50
-                     dark:focus:ring-[#FFB703]"
+              class="block w-full rounded-lg border-0 py-2.5 shadow-sm sm:text-sm px-3 transition-all outline-none
+                     bg-bg-main text-text-main ring-1 ring-inset ring-border-main placeholder:text-text-muted/70
+                     focus:ring-2 focus:ring-inset focus:ring-accent"
             />
             
             @if (suggestedTags().length > 0) {
-              <ul class="absolute z-10 top-full mt-1 w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+              <ul class="absolute z-10 top-full mt-1 w-full bg-bg-card border border-border-main rounded-lg shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                 @for (tag of suggestedTags(); track tag) {
                   <li (click)="addTag(tag)" 
-                      class="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 transition-colors flex items-center gap-2">
-                    <span class="text-gray-400">#</span>{{ tag }}
+                      class="px-4 py-2 cursor-pointer hover:bg-bg-main text-sm font-medium text-text-main transition-colors flex items-center gap-2">
+                    <span class="text-text-muted">#</span>{{ tag }}
                   </li>
                 }
               </ul>
@@ -174,9 +166,8 @@
             type="button"
             (click)="addTag()"
             [disabled]="!currentTag.trim()"
-            class="px-4 py-2.5 bg-[#FB8500] hover:bg-[#FB8500]/90 text-white rounded-lg font-medium text-sm
-                   transition-all shadow-sm dark:bg-[#FFB703] dark:hover:bg-[#FFB703]/90
-                   disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+            class="px-4 py-2.5 bg-accent hover:bg-accent-hover text-white rounded-lg font-medium text-sm
+                   transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
             <lucide-icon [img]="icons.Plus" class="w-4 h-4"></lucide-icon>
             Aggiungi
           </button>
@@ -185,26 +176,26 @@
         @if (tags().length > 0) {
           <div class="flex flex-wrap gap-2">
             @for (tag of tags(); track tag) {
-              <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-[#219EBC]/20 
-                           text-[#023047] dark:text-[#8ECAE6] rounded-full text-sm font-medium
-                           border border-gray-200 dark:border-[#219EBC]/30 transition-colors">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-bg-main 
+                           text-text-main rounded-full text-sm font-medium
+                           border border-border-main transition-colors">
                 #{{ tag }}
                 <button
                   type="button"
                   (click)="removeTag(tag)"
-                  class="hover:text-red-600 dark:hover:text-red-400 transition-colors">
+                  class="hover:text-red-500 transition-colors">
                   <lucide-icon [img]="icons.X" class="w-3.5 h-3.5"></lucide-icon>
                 </button>
               </span>
             }
           </div>
         } @else {
-          <p class="text-sm text-gray-500 dark:text-[#8ECAE6]/70 text-center py-4">
+          <p class="text-sm text-text-muted text-center py-4">
             Nessun tag aggiunto
           </p>
         }
 
-        <p class="text-xs text-gray-500 dark:text-[#8ECAE6]/70 mt-3">
+        <p class="text-xs text-text-muted mt-3">
           Aggiungi fino a 3 tag per aiutare gli altri a trovare il tuo meme
         </p>
       </div>
@@ -213,16 +204,14 @@
         <button
           type="button"
           routerLink="/"
-          class="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-[#219EBC]/20 dark:hover:bg-[#219EBC]/30
-                 text-[#023047] dark:text-[#8ECAE6] rounded-lg font-medium text-sm transition-all">
+          class="px-6 py-2.5 hover:bg-bg-main border border-transparent hover:border-border-main text-text-main rounded-lg font-medium text-sm transition-all">
           Annulla
         </button>
         <button
           type="submit"
           [disabled]="isLoading() || memeForm.invalid"
-          class="px-6 py-2.5 bg-[#FB8500] hover:bg-[#FB8500]/90 text-white rounded-lg font-medium text-sm
-                 transition-all shadow-sm dark:bg-[#FFB703] dark:hover:bg-[#FFB703]/90
-                 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+          class="px-6 py-2.5 bg-accent hover:bg-accent-hover text-white rounded-lg font-medium text-sm
+                 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
           @if (isLoading()) {
             <lucide-icon [img]="icons.Loader2" class="w-4 h-4 animate-spin"></lucide-icon>
             Pubblicazione...

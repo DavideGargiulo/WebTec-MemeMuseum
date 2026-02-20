@@ -1,6 +1,39 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
+@theme {
+  --color-bg-main: var(--theme-bg-main);
+  --color-bg-card: var(--theme-bg-card);
+  
+  --color-text-main: var(--theme-text-main);
+  --color-text-muted: var(--theme-text-muted);
+  
+  --color-accent: var(--theme-accent);
+  --color-accent-hover: var(--theme-accent-hover);
+  
+  --color-border-main: var(--theme-border-main);
+}
+
+:root {
+  --theme-bg-main: #FAFAFA;
+  --theme-bg-card: #FFFFFF;
+  --theme-text-main: #023047;
+  --theme-text-muted: #4b5563;
+  --theme-accent: #FB8500;
+  --theme-accent-hover: #e87b00;
+  --theme-border-main: #e5e7eb;
+}
+
+:root.dark {
+  --theme-bg-main: #001a2c;
+  --theme-bg-card: #023047; 
+  --theme-text-main: #FFFFFF;
+  --theme-text-muted: #8ECAE6;
+  --theme-accent: #A0D6F0;
+  --theme-accent-hover: #7BBCE6;
+  --theme-border-main: rgba(33, 158, 188, 0.3);
+}
+
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 

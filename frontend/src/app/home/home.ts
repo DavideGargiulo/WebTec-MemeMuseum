@@ -36,13 +36,14 @@ export class HomeComponent implements OnInit {
   loadMemes() {
     this.isLoading = true;
     this.memeService.getAllMemes().subscribe({
-      next: (response: any) => {
-        const backendMemes = response.data?.memes || response.data || [];
-
-        this.memes = backendMemes.map((m: any) => {
+      next: (response) => {
+        this.memes = response.data.memes.map((m: any) => {
+          // Controlliamo sia 'votes' che 'Votes' (Sequelize a volte cambia maiuscole)
+          const voteArray = m.votes || m.Votes;
           let userVote = null;
-          if (m.votes && m.votes.length > 0) {
-            userVote = m.votes[0].isUpvote;
+
+          if (voteArray && Array.isArray(voteArray) && voteArray.length > 0) {
+            userVote = voteArray[0].isUpvote;
           }
 
           return {
@@ -55,22 +56,13 @@ export class HomeComponent implements OnInit {
             tags: m.tags ? m.tags.map((t: any) => t.name) : [],
             likes: m.upvotesNumber || 0,
             dislikes: m.downvotesNumber || 0,
-            comments: m.commentsNumber || 0,
-            date: new Date(m.createdAt),
-            isLiked: userVote
+            isLiked: userVote // Se questo è null, le frecce restano grigie
           };
         });
-
-        this.sortMemes();
         this.calculatePagination();
         this.updatePaginatedMemes();
-        
         this.isLoading = false;
         this.cdr.detectChanges();
-      },
-      error: (error) => {
-        console.error('Errore nel caricamento dei meme:', error);
-        this.isLoading = false;
       }
     });
   }

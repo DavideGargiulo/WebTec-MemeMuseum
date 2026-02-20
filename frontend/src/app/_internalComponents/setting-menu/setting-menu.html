@@ -1,37 +1,37 @@
 <div class="fixed inset-0 z-40 cursor-default" (click)="closeMenu.emit()"></div>
 
 <div class="absolute bottom-full right-0 mb-4 md:mb-0 md:left-16 md:bottom-2 md:right-auto w-64 
-            bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 
+            bg-bg-card border border-border-main 
             rounded-2xl shadow-xl p-2 z-50 flex flex-col gap-1 
             animate-in fade-in zoom-in-95 duration-200 
             origin-bottom-right md:origin-bottom-left">
   
   <div class="px-3 py-2 flex items-center gap-3 mb-1">
-    <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center">
-        <lucide-icon [img]="icons.User" class="w-4 h-4 text-gray-600 dark:text-gray-300"></lucide-icon>
+    <div class="w-8 h-8 rounded-full bg-bg-main flex items-center justify-center">
+        <lucide-icon [img]="icons.User" class="w-4 h-4 text-text-muted"></lucide-icon>
     </div>
     <div class="flex flex-col overflow-hidden">
-      <span class="text-sm font-semibold text-gray-700 dark:text-gray-200 truncate">
+      <span class="text-sm font-semibold text-text-main truncate">
         {{ user ? user.username : 'Ospite' }}
       </span>
-      <span *ngIf="user" class="text-xs text-gray-500 truncate">{{ user.email }}</span>
+      <span *ngIf="user" class="text-xs text-text-muted truncate">{{ user.email }}</span>
     </div>
   </div>
   
-  <hr class="border-gray-100 dark:border-gray-800 mb-1">
+  <hr class="border-border-main mb-1">
 
-  <button (click)="toggleTheme()" class="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg w-full text-left transition-colors">
+  <button (click)="toggleTheme()" class="flex items-center gap-3 px-3 py-2 text-sm text-text-main hover:bg-bg-main rounded-lg w-full text-left transition-colors">
       <lucide-icon [img]="icons.Moon" class="w-4 h-4"></lucide-icon>
       Cambia Tema
   </button>
 
   @if (user) {
-    <button (click)="logout()" class="flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg w-full text-left transition-colors">
+    <button (click)="logout()" class="flex items-center gap-3 px-3 py-2 text-sm text-red-500 hover:bg-red-500/10 rounded-lg w-full text-left transition-colors">
         <lucide-icon [img]="icons.LogOut" class="w-4 h-4"></lucide-icon>
         Esci
     </button>
   } @else {
-    <button (click)="goToLogin()" class="flex items-center gap-3 px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg w-full text-left transition-colors">
+    <button (click)="goToLogin()" class="flex items-center gap-3 px-3 py-2 text-sm text-accent hover:bg-accent/10 rounded-lg w-full text-left transition-colors">
         <lucide-icon [img]="icons.LogIn" class="w-4 h-4"></lucide-icon>
         Accedi
     </button>

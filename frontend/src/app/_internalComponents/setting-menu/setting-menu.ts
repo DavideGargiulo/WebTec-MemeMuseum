@@ -33,6 +33,8 @@ export class SettingsMenuComponent {
 
   goToLogin() {
     this.closeMenu.emit();
-    this.router.navigate(['/login']);
+    this.router.navigate(['/login'], { 
+      queryParams: { returnUrl: this.router.url } 
+    });
   }
 }

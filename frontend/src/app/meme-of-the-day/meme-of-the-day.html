@@ -1,103 +1,82 @@
-<div class="min-h-screen bg-[#FAFAFA] dark:bg-[#023047] pt-16 pb-12 transition-colors duration-200">
+<div class="min-h-screen bg-bg-main pt-16 pb-12 transition-colors duration-200">
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     
     <div class="mb-8 text-center flex flex-col items-center">
-      <div class="p-3 bg-[#FB8500]/10 dark:bg-[#FFB703]/20 rounded-full mb-4">
-        <lucide-icon [img]="icons.Trophy" class="w-10 h-10 text-[#FB8500] dark:text-[#FFB703]"></lucide-icon>
+      <div class="p-3 bg-accent/10 rounded-full mb-4">
+        <lucide-icon [img]="icons.Trophy" class="w-10 h-10 text-accent"></lucide-icon>
       </div>
-      <h1 class="text-3xl font-bold text-[#023047] dark:text-white mb-2 flex items-center gap-2 justify-center">
+      <h1 class="text-3xl font-bold text-text-main mb-2 flex items-center gap-2 justify-center">
         Meme del Giorno
       </h1>
-      <p class="text-sm text-gray-600 dark:text-[#8ECAE6]">
+      <p class="text-sm text-text-muted">
         Il contenuto più votato e apprezzato dalla community nelle ultime 24 ore!
       </p>
     </div>
 
     @if (isLoading()) {
       <div class="w-full h-64 flex flex-col items-center justify-center gap-4">
-        <lucide-icon [img]="icons.Loader2" class="w-10 h-10 text-[#FB8500] dark:text-[#FFB703] animate-spin"></lucide-icon>
-        <p class="text-[#023047] dark:text-[#8ECAE6] font-medium">Ricerca del vincitore in corso...</p>
+        <lucide-icon [img]="icons.Loader2" class="w-10 h-10 text-accent animate-spin"></lucide-icon>
+        <p class="text-text-muted animate-pulse font-medium">Ricerca del vincitore in corso...</p>
       </div>
     }
 
     @if (!isLoading() && meme()) {
-      <div class="bg-white dark:bg-[#023047] rounded-3xl shadow-2xl border-2 border-[#FB8500]/50 dark:border-[#FFB703]/50 overflow-hidden transition-all duration-300 relative group">
+      <div class="bg-bg-card rounded-2xl shadow-xl border border-border-main overflow-hidden transition-colors duration-200">
         
-        <div class="absolute top-4 left-4 z-10 bg-white/90 dark:bg-[#023047]/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border border-[#FB8500]/30 dark:border-[#FFB703]/30 flex items-center gap-2">
-          <lucide-icon [img]="icons.Crown" class="w-5 h-5 text-[#FB8500] dark:text-[#FFB703] fill-[#FB8500]/20 dark:fill-[#FFB703]/20"></lucide-icon>
-          <span class="font-bold text-sm text-[#023047] dark:text-white">Vincitore</span>
-        </div>
-
-        <div class="w-full bg-gray-50 dark:bg-black/20 flex items-center justify-center border-b border-gray-100 dark:border-[#219EBC]/20">
-          <img 
-            [src]="meme().imageUrl" 
-            [alt]="meme().title" 
-            class="max-h-[500px] w-auto object-contain p-4 transition-transform duration-500 group-hover:scale-[1.02]" 
-          />
-        </div>
-
-        <div class="p-6 sm:p-8">
-          <h2 class="text-2xl sm:text-3xl font-bold text-[#023047] dark:text-white mb-4 leading-tight">
-            {{ meme().title }}
-          </h2>
-
-          <p class="text-gray-600 dark:text-[#8ECAE6] text-base mb-6 line-clamp-3">
-            {{ meme().description }}
-          </p>
-
-          <div class="flex flex-wrap items-center gap-6 mb-6 pb-6 border-b border-gray-100 dark:border-[#219EBC]/20">
-            <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-[#8ECAE6]/70">
-              <div class="w-8 h-8 rounded-full bg-[#FB8500]/10 dark:bg-[#FFB703]/10 text-[#FB8500] dark:text-[#FFB703] flex items-center justify-center">
-                <lucide-icon [img]="icons.User" class="w-4 h-4"></lucide-icon>
-              </div>
-              <span class="font-semibold text-[#023047] dark:text-white">{{ meme().author }}</span>
+        <div class="p-6 border-b border-border-main flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-bg-main flex items-center justify-center border border-border-main">
+              <lucide-icon [img]="icons.User" class="w-5 h-5 text-text-muted"></lucide-icon>
             </div>
-            
-            <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-[#8ECAE6]/70">
-              <lucide-icon [img]="icons.Calendar" class="w-4 h-4"></lucide-icon>
-              <span>{{ meme().date | date: 'dd MMMM yyyy' }}</span>
+            <div>
+              <p class="text-sm font-bold text-text-main">{{ meme().author }}</p>
+              <p class="text-xs text-text-muted">{{ meme().date | date: 'dd MMMM yyyy' }}</p>
             </div>
           </div>
+        </div>
 
-          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            
-            <div class="flex flex-wrap gap-2">
-              @for (tag of meme().tags; track tag) {
-                <span class="inline-flex items-center px-3 py-1 bg-gray-100 dark:bg-[#219EBC]/20 text-[#023047] dark:text-[#8ECAE6] rounded-full text-xs font-semibold border border-gray-200 dark:border-[#219EBC]/30">
-                  #{{ tag }}
-                </span>
-              }
-            </div>
+        <div class="relative bg-bg-main flex justify-center items-center min-h-[300px] p-4">
+          <img [src]="meme().imageUrl" [alt]="meme().title" class="max-h-[600px] object-contain rounded-lg shadow-sm">
+        </div>
 
-            <button 
-              [routerLink]="['/meme', meme().id]"
-              class="flex items-center gap-2 px-6 py-3 bg-[#FB8500] hover:bg-[#FB8500]/90 text-white rounded-xl font-bold text-sm transition-all shadow-md dark:bg-[#FFB703] dark:hover:bg-[#FFB703]/90 w-full sm:w-auto justify-center">
+        <div class="p-6">
+          <h2 class="text-2xl font-bold text-text-main mb-2">{{ meme().title }}</h2>
+          <p class="text-text-muted mb-6">{{ meme().description }}</p>
+
+          <div class="flex flex-wrap gap-2 mb-6">
+            @for (tag of meme().tags; track tag) {
+              <span class="px-3 py-1 bg-bg-main text-text-main text-xs font-semibold rounded-full border border-border-main">
+                #{{ tag }}
+              </span>
+            }
+          </div>
+
+          <div class="flex items-center justify-between pt-4 border-t border-border-main">
+            <button [routerLink]="['/viewmeme', meme().id]"
+                    class="w-full flex items-center justify-center gap-2 bg-accent hover:bg-accent-hover text-white py-3 px-6 rounded-xl font-bold transition-all shadow-md hover:shadow-lg">
               Vedi e Commenta
               <div class="flex items-center gap-3 ml-2 border-l border-white/30 pl-3">
                 <div class="flex items-center gap-1">
                   <lucide-icon [img]="icons.Heart" class="w-4 h-4"></lucide-icon>
-                  <span>{{ meme().likes }}</span>
+                  <span>{{ meme().likes || 0 }}</span>
                 </div>
                 <div class="flex items-center gap-1">
                   <lucide-icon [img]="icons.MessageCircle" class="w-4 h-4"></lucide-icon>
-                  <span>{{ meme().comments }}</span>
+                  <span>{{ meme().comments || 0 }}</span>
                 </div>
               </div>
             </button>
-            
           </div>
+
         </div>
       </div>
     }
 
     @if (!isLoading() && !meme()) {
-      <div class="text-center py-12 bg-white dark:bg-[#023047] rounded-2xl shadow-lg border border-gray-200 dark:border-[#219EBC]/30">
-        <lucide-icon [img]="icons.Calendar" class="w-12 h-12 mx-auto text-gray-400 dark:text-[#8ECAE6]/50 mb-4"></lucide-icon>
-        <h3 class="text-lg font-bold text-[#023047] dark:text-white mb-2">Nessun meme oggi!</h3>
-        <p class="text-gray-500 dark:text-[#8ECAE6]/70">La giornata è appena iniziata o nessuno ha ancora votato.</p>
-        <button routerLink="/create" class="mt-4 px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-[#219EBC]/20 dark:hover:bg-[#219EBC]/30 text-[#023047] dark:text-[#8ECAE6] rounded-lg font-medium transition-colors">
-          Sii il primo a postare
-        </button>
+      <div class="text-center py-12 bg-bg-card rounded-2xl shadow-lg border border-border-main transition-colors duration-200">
+        <lucide-icon [img]="icons.Calendar" class="w-12 h-12 mx-auto text-text-muted mb-4 opacity-50"></lucide-icon>
+        <h3 class="text-lg font-bold text-text-main mb-2">Nessun meme oggi!</h3>
+        <p class="text-text-muted">La giornata è appena iniziata, torna più tardi per scoprire il meme del giorno.</p>
       </div>
     }
 
