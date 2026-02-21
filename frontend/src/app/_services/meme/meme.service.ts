@@ -72,11 +72,15 @@ export class MemeService {
   }
 
   getMemeById(id: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${id}`);
+    return this.http.get(`${this.apiUrl}/${id}`, { withCredentials: true });
   }
 
   addComment(memeId: string, content: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${memeId}/comments`, { content, withCredentials: true });
+    return this.http.post(
+      `${this.apiUrl}/${memeId}/comments`, 
+      { content },
+      { withCredentials: true }
+    );
   }
 
   getMemeOfTheDay(): Observable<any> {
@@ -90,8 +94,7 @@ export class MemeService {
   }
 
   searchMemes(filters: any): Observable<any> {
-    let params = new HttpParams()
-      .set('page', filters.page || 1);
+    let params = new HttpParams().set('page', filters.page || 1);
 
     if (filters.sortBy) params = params.set('sortBy', filters.sortBy);
     if (filters.sortDir) params = params.set('sortDir', filters.sortDir);
@@ -99,14 +102,11 @@ export class MemeService {
     if (filters.endDate) params = params.set('endDate', filters.endDate);
     
     if (filters.tags) {
-      const tagsString = Array.isArray(filters.tags) 
-        ? filters.tags.join(',')
-        : filters.tags;
-        
+      const tagsString = Array.isArray(filters.tags) ? filters.tags.join(',') : filters.tags;
       params = params.set('tags', tagsString);
     }
 
-    return this.http.get<any>(`${this.apiUrl}/search`, { params });
+    return this.http.get<any>(`${this.apiUrl}/search`, { params, withCredentials: true }); // ← aggiunto
   }
 
   searchTagsAutocomplete(query: string): Observable<string[]> {

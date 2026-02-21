@@ -410,19 +410,16 @@ export async function searchMemes(req, res) {
     const offset = (page - 1) * limit;
 
     const { startDate, endDate, tags, sortBy, sortDir } = req.query;
+    const userId = req.user?.id ?? null; // ← aggiunto
 
     const memeWhere = {};
 
     // 1. Filtri per Data
     if (startDate && endDate) {
-      // Imposta l'inizio alle 00:00:00
       const start = new Date(startDate);
       start.setHours(0, 0, 0, 0);
-
-      // Imposta la fine alle 23:59:59
       const end = new Date(endDate);
       end.setHours(23, 59, 59, 999);
-
       memeWhere.createdAt = { [Op.between]: [start, end] };
     } else if (startDate) {
       const start = new Date(startDate);
@@ -434,13 +431,12 @@ export async function searchMemes(req, res) {
       memeWhere.createdAt = { [Op.lte]: end };
     }
 
-    // 2. CORREZIONE TAG: Estrazione preventiva degli ID
+    // 2. Filtro Tag
     if (tags) {
       const tagArray = tags.split(',').map(t => t.trim());
       
-      // Cerchiamo in anticipo SOLO gli ID dei meme che possiedono i tag richiesti
       const memesConTag = await Meme.findAll({
-        attributes: ['id'], // Chiediamo solo l'ID per essere velocissimi
+        attributes: ['id'],
         include: [{
           model: Tag,
           as: 'tags',
@@ -452,7 +448,6 @@ export async function searchMemes(req, res) {
 
       const matchingMemeIds = memesConTag.map(m => m.id);
 
-      // Se nessun meme ha questi tag, restituiamo subito un array vuoto (risparmia lavoro al server!)
       if (matchingMemeIds.length === 0) {
         return res.status(200).json({
           data: [],
@@ -460,11 +455,10 @@ export async function searchMemes(req, res) {
         });
       }
 
-      // Aggiungiamo gli ID trovati al filtro principale
       memeWhere.id = { [Op.in]: matchingMemeIds };
     }
 
-    // 3. Costruzione dell'ordinamento
+    // 3. Ordinamento
     let orderClause = [['createdAt', 'DESC']]; 
     const direction = sortDir === 'ASC' ? 'ASC' : 'DESC';
 
@@ -478,22 +472,35 @@ export async function searchMemes(req, res) {
       orderClause = [['createdAt', direction]];
     }
 
-    // 4. Esecuzione della query principale (ORA PULITA DA FILTRI SUI TAG!)
+    // 4. Include dinamico con voti utente ← aggiunto
+    const includeOptions = [
+      {
+        model: User,
+        as: 'user',
+        attributes: ['id', 'username']
+      },
+      {
+        model: Tag,
+        as: 'tags',
+        attributes: ['id', 'name'],
+        through: { attributes: [] }
+      }
+    ];
+
+    if (userId) {
+      includeOptions.push({
+        model: MemeVote,
+        as: 'votes',
+        where: { userId },
+        required: false,
+        attributes: ['isUpvote']
+      });
+    }
+
+    // 5. Query principale
     const { count, rows } = await Meme.findAndCountAll({
       where: memeWhere,
-      include: [
-        {
-          model: User,
-          as: 'user',
-          attributes: ['id', 'username']
-        },
-        {
-          model: Tag,
-          as: 'tags', // Poiché non c'è il blocco 'where' qui, estrarrà TUTTI i tag del meme!
-          attributes: ['id', 'name'],
-          through: { attributes: [] }
-        }
-      ],
+      include: includeOptions, // ← usa quello dinamico
       order: orderClause,
       limit: limit,
       offset: offset,

@@ -56,9 +56,7 @@ export class AuthService {
 
   private doClientLogout() {
     this.currentUser.set(null);
-    localStorage.removeItem('meme_user'); // Rimuoviamo solo i dati utente
-    // Nota: 'meme_token' non esiste più, quindi non serve rimuoverlo
-    this.router.navigate(['/login']);
+    localStorage.removeItem('meme_user');
   }
 
   private handleAuthSuccess(user: User) {

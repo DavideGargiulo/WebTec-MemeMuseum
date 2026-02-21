@@ -8,6 +8,7 @@ import {
 import { AuthService } from '../../_services/auth/auth.service';
 import { MemeService } from '../../_services/meme/meme.service';
 import { Router, RouterLink } from '@angular/router';
+import { ToastService } from '../../_services/toast/toast.service';
 
 @Component({
   selector: 'app-meme-card',
@@ -24,6 +25,7 @@ export class MemeCardComponent {
   private memeService = inject(MemeService);
   private cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
+  private toast = inject(ToastService);
 
   showDeleteModal = false;
   isDeleting = false;
@@ -69,7 +71,7 @@ export class MemeCardComponent {
 
   vote(isUpvote: boolean) {
     if (!this.authService.currentUser()) {
-      this.router.navigate(['/login']);
+      this.toast.warning('Devi essere loggato per votare un meme', 'Attenzione');
       return;
     }
     if (this.isVoting) return;
