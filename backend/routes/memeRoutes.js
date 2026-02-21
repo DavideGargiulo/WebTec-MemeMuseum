@@ -10,11 +10,11 @@ import {
   searchMemes,
   searchTagsForAutocomplete
 } from "../controllers/memeController.js";
-import { protect } from "../middleware/utils/authMiddleware.js";
+import { protect, optionalProtect } from "../middleware/utils/authMiddleware.js";
 
 const router = Router();
 
-router.get('/', getAllMemes);
+router.get('/', optionalProtect, getAllMemes);
 
 router.get('/search', searchMemes);
 

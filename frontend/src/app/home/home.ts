@@ -38,7 +38,6 @@ export class HomeComponent implements OnInit {
     this.memeService.getAllMemes().subscribe({
       next: (response) => {
         this.memes = response.data.memes.map((m: any) => {
-          // Controlliamo sia 'votes' che 'Votes' (Sequelize a volte cambia maiuscole)
           const voteArray = m.votes || m.Votes;
           let userVote = null;
 
@@ -56,7 +55,7 @@ export class HomeComponent implements OnInit {
             tags: m.tags ? m.tags.map((t: any) => t.name) : [],
             likes: m.upvotesNumber || 0,
             dislikes: m.downvotesNumber || 0,
-            isLiked: userVote // Se questo è null, le frecce restano grigie
+            isLiked: userVote
           };
         });
         this.calculatePagination();

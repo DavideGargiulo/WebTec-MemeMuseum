@@ -34,3 +34,15 @@ export const protect = async (req, res, next) => {
     return res.status(401).json({ message: "Token non valido o scaduto." });
   }
 };
+
+export async function optionalProtect(req, res, next) {
+  try {
+    const token = req.cookies?.jwt;
+    if (!token || token === 'loggedout') return next();
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret-per-dev');
+    const user = await User.findByPk(decoded.sub);
+    if (user) req.user = user;
+  } catch (_) { /* token invalido, ignoriamo */ }
+  next();
+}
