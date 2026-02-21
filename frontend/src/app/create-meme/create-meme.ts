@@ -109,13 +109,15 @@ export class CreaMemeComponent implements OnInit, OnDestroy {
   }
 
   handleFile(file: File): void {
-    if (!file.type.startsWith('image/')) {
-      this.toastService.error('Per favore carica solo file immagine');
+    const allowedTypes = ['image/jpeg', 'image/png'];
+    if (!allowedTypes.includes(file.type)) {
+      this.toastService.error('Formato non supportato. Carica solo JPG, JPEG o PNG.');
       return;
     }
-    const maxSize = 10 * 1024 * 1024;
+
+    const maxSize = 5 * 1024 * 1024; 
     if (file.size > maxSize) {
-      this.toastService.error('Il file è troppo grande. Dimensione massima: 10MB');
+      this.toastService.error('Il file è troppo grande. Dimensione massima: 5MB.');
       return;
     }
 

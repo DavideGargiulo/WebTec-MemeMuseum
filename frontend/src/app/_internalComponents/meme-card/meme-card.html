@@ -17,7 +17,9 @@
       </div>
     </div>
 
-    <h2 class="text-2xl font-extrabold text-text-main mb-4 leading-tight">{{ meme.title }}</h2>
+    <h2 class="text-2xl font-extrabold text-text-main mb-4 leading-tight break-all line-clamp-2" [title]="meme.title">
+      {{ meme.title }}
+    </h2>
 
     <div class="py-4 bg-bg-main rounded-lg mb-4 flex items-center justify-center overflow-hidden border border-border-main">
       <img
@@ -30,9 +32,9 @@
 
   </div>
 
-  <div class="mt-4 pt-4 border-t border-border-main flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <div class="mt-4 pt-4 border-t border-border-main flex flex-wrap items-center justify-between gap-y-3 gap-x-4">
     
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 flex-shrink-0">
       <lucide-icon 
         [img]="icons.ChevronUp" 
         (click)="vote(true)"
@@ -58,13 +60,15 @@
       </lucide-icon>
     </div>
 
-    <div class="flex gap-2 flex-wrap sm:justify-end">
-      <span 
-        *ngFor="let tag of meme.tags"
-        class="inline-flex items-center gap-x-1.5 py-1 px-3 rounded-full text-xs font-medium bg-bg-main text-text-main border border-border-main cursor-default hover:bg-border-main transition-colors">
-        <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
-        {{ tag }}
-      </span>
+    <div class="flex-1 min-w-0 flex justify-end">
+      <div class="flex gap-2 overflow-x-auto flex-nowrap pb-1 max-w-full" style="scrollbar-width: none;">
+        <span 
+          *ngFor="let tag of meme.tags"
+          class="inline-flex items-center gap-x-1.5 py-1 px-3 rounded-full text-xs font-medium bg-bg-main text-text-main border border-border-main cursor-default hover:bg-border-main transition-colors whitespace-nowrap">
+          <span class="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0"></span>
+          {{ tag }}
+        </span>
+      </div>
     </div>
 
   </div>

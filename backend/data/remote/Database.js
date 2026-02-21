@@ -12,6 +12,12 @@ import { createMemeOfTheDayModel } from './models/MemeOfTheDay.js';
 
 import 'dotenv/config';
 
+/**
+ * Istanza principale di Sequelize per la connessione al database.
+ * Configura il dialetto (es. postgres, mysql), disabilita il logging delle query in console
+ * e gestisce le opzioni SSL richieste in ambienti di produzione.
+ * @type {Sequelize}
+ */
 export const database = new Sequelize(process.env.DB_CONNECTION_URI, {
   dialect: process.env.DIALECT,
   logging: false,
@@ -23,7 +29,6 @@ export const database = new Sequelize(process.env.DB_CONNECTION_URI, {
   }
 });
 
-// Inizializza i modelli
 createUserModel(database);
 createMemeModel(database);
 createTagModel(database);
@@ -33,7 +38,6 @@ createCommentModel(database);
 createCommentVoteModel(database);
 createMemeOfTheDayModel(database);
 
-// Estrai i modelli
 export const {
   User,
   Meme,
@@ -45,9 +49,10 @@ export const {
   MemeOfTheDay
 } = database.models;
 
-// ========================================
-// ASSOCIATIONS
-// ========================================
+/**
+ * Definisce tutte le relazioni tra i modelli (tabelle) del database.
+ * Imposta chiavi esterne, alias (as) e regole di eliminazione a cascata (CASCADE).
+ */
 const createAssociations = () => {
   // User <-> Meme
   User.hasMany(Meme, { 
@@ -159,14 +164,14 @@ const createAssociations = () => {
   });
 };
 
-// ========================================
-// TRIGGERS (HOOKS)
-// ========================================
+/**
+ * Imposta gli "hook" di Sequelize (l'equivalente ORM dei trigger del database).
+ * Questi intercettano le operazioni di insert/update/delete per aggiornare 
+ * automaticamente i contatori (denormalizzazione per performance) senza
+ * dover fare query COUNT() ogni volta.
+ * @note Attualmente questa funzione non viene richiamata in basso. Se de-commentata, si attiverà.
+ */
 const setupTriggers = () => {
-  // ========================================
-  // MEME_VOTE TRIGGERS
-  // ========================================
-  
   // After insert: increment upvotes/downvotes counter
   MemeVote.addHook('afterCreate', async (vote, options) => {
     const field = vote.isUpvote ? 'upvotesNumber' : 'downvotesNumber';
@@ -204,10 +209,6 @@ const setupTriggers = () => {
       transaction: options.transaction 
     });
   });
-
-  // ========================================
-  // COMMENT_VOTE TRIGGERS
-  // ========================================
   
   // After insert: increment upvotes/downvotes counter
   CommentVote.addHook('afterCreate', async (vote, options) => {
@@ -246,10 +247,6 @@ const setupTriggers = () => {
       transaction: options.transaction 
     });
   });
-
-  // ========================================
-  // COMMENT TRIGGERS
-  // ========================================
   
   // Before create/update: validate parent comment belongs to same meme
   Comment.addHook('beforeSave', async (comment, options) => {
@@ -306,25 +303,27 @@ const setupTriggers = () => {
   });
 };
 
-// Esegui setup
 createAssociations();
 // setupTriggers();
 
-// ========================================
-// INIZIALIZZAZIONE DATABASE
-// ========================================
+/**
+ * Autentica la connessione con il database e sincronizza i modelli.
+ * La sincronizzazione (`database.sync()`) viene eseguita solo in ambiente di sviluppo 
+ * per evitare modifiche accidentali allo schema del DB in produzione.
+ * @returns {Promise<void>}
+ */
 export const initDatabase = async () => {
   try {
     await database.authenticate();
-    console.log('✅ Database connesso con successo');
+    console.log('Database connesso con successo');
     
     // ATTENZIONE: sync() solo in development!
     if (process.env.NODE_ENV === 'development') {
       await database.sync({ alter: false });
-      console.log('✅ Database sincronizzato');
+      console.log('Database sincronizzato');
     }
   } catch (err) {
-    console.error('❌ Errore connessione DB:', err);
+    console.error('Errore connessione DB:', err);
     throw err;
   }
 };

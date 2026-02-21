@@ -39,9 +39,9 @@
           <img [src]="meme().imageUrl" [alt]="meme().title" class="max-h-[600px] object-contain rounded-lg shadow-sm">
         </div>
 
-        <div class="p-6">
-          <h2 class="text-2xl font-bold text-text-main mb-2">{{ meme().title }}</h2>
-          <p class="text-text-muted mb-6">{{ meme().description }}</p>
+        <div class="p-6 min-w-0">
+          <h2 class="text-2xl font-bold text-text-main mb-2 break-all">{{ meme().title }}</h2>
+          <p class="text-text-muted mb-6 break-words">{{ meme().description }}</p>
 
           <div class="flex flex-wrap gap-2 mb-6">
             @for (tag of meme().tags; track tag) {
